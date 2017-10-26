@@ -2,8 +2,8 @@
 DATA STRUCTURES
 
 Location Information (2D arrays, inner array for words, outer array for docs)
-    wordLocationList = [[word, word, word], [word,word,word]]
-    tagsByLocation = [[tag, tag, tag], [tag, tag, tag]]
+    wordsByLocation = [[word, word, word], [word,word,word]]
+    topicsByLocation = [[tag, tag, tag], [tag, tag, tag]]
 
 Word Information (indices line up)
     individualWordList = [word, word, word] (not updated after init)
@@ -15,7 +15,7 @@ Topic Information (indices line up)
     topicWordCounts = [#wordsInTopic, #wordsInTopic]
 
 Document Information (indices line up)
-    docList = [{topic:#docWords, topic:#docWords}, {topic:#docWords, topic:#docWords}]
+    docList = [[#docWords, #docWords], [#docWords, #docWords]] (outer array is list of docs, inner array is #docwords in each topic)
     docWordCounts = [#wordsInDoc, #wordsInDoc] (not updated after init)
 
 
@@ -53,3 +53,53 @@ printTopics()
         print(topic + "\n")
 
 '''
+
+
+#DUMMY DATA STRUCTURES
+#Location Information (2D arrays, inner array for words, outer array for docs)
+wordsByLocation = [["word", "word"]]
+topicsByLocation = [[0,1]]              #topics will be ints since they're essentially indices in topicList
+
+#Word Information (indices line up)
+individualWordList = ["word", "word"]   # (not updated after init)
+wordTopicCounts = [[0, 1]]              # (index of count in inner array corresponds to topic)
+wordCounts = [0, 1]                     # (not updated after init)
+
+#Topic Information (indices line up)
+topicList = [{"word1":0, "word2":1}]
+topicWordCounts = [1, 0]
+
+#Document Information (indices line up)
+docList = [[0,1],[1,0]]                 # (number of docwords in inner array corresponds to topic)
+docWordCounts = []                      # (not updated after init)
+
+
+
+
+
+
+"""
+
+:param word: int -- word index in location 2D arrays
+:param doc: int -- doc index in location 2D arrays
+:param wordProbabilities: list -- probabilities of word in each topic
+:return:
+"""
+def updateDataStructures(word, doc, wordProbabilities):
+
+    wordString = wordsByLocation[doc][word]
+    oldTopic = topicsByLocation[doc][word]
+
+    newTopic = wordProbabilities.index(max(wordProbabilities))
+    topicsByLocation[doc][word] = newTopic
+
+    topicList[oldTopic][wordString] = topicList[oldTopic][wordString] - 1
+    topicList[newTopic][wordString] = topicList[newTopic][wordString] + 1
+
+    topicWordCounts[oldTopic] = topicWordCounts[oldTopic] - 1
+    topicWordCounts[newTopic] = topicWordCounts[newTopic] + 1
+
+    docList[doc][oldTopic] = docList[doc][oldTopic] - 1
+    docList[doc][newTopic] = docList[doc][newTopic] + 1
+
+    return
