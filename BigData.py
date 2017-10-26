@@ -20,7 +20,7 @@ Document Information (indices line up)
 '''
 
 import csv
-def BigData:
+def BigData():
 	#Location Information
 	#2d array: outer array contains documents which are arrays of words in the order they appear
 	wordLocationList = []
@@ -42,12 +42,12 @@ def BigData:
 	#keys are words and the values are counts for that word
 	topicList = []
 	#array of numbers, where each number is the number of words in the topic (corresponding by index)
-	topicWordCounts []
+	topicWordCounts = []
 
 	#Document Information 
 	#array of documents, each document is a dictionary
 	#key is a topic (do we have a way to distinguish these from one another?)
 	#value is number of words in the document that belong to that topic
-	docList =[]
+	docList = []
 	#a list of of the number of words in each document
 	docWordCounts = []

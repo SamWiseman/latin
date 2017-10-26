@@ -79,6 +79,9 @@ docWordCounts = []                      # (not updated after init)
 
 
 """
+updateDataStructures(word, doc, wordProbabilities) -- this method chooses a new topic assignment for the 
+given instance of the word based on its calculated topic probabilities and updates all relevant data 
+structures to change its assignment
 
 :param word: int -- word index in location 2D arrays
 :param doc: int -- doc index in location 2D arrays
