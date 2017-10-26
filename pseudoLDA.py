@@ -7,9 +7,8 @@ Location Information (2D arrays, inner array for words, outer array for docs)
 
 Word Information (indices line up)
     individualWordList = [word, word, word] (not updated after init)
-    wordTopicCounts = [{topic:count,topic:count}, {topic:count,topic:count]}
+    wordTopicCounts = [[count,count], [count,count]] (index of count in inner array corresponds to topic)
     wordCounts = [int, int, int] (not updated after init)
-    wordProbabilities = {word:[topicProb, topicProb], word:[topicProb, topicProb]} (random init)
 
 Topic Information (indices line up)
     topicList = [{word:count, word:count}, {word:count,word:count}]
@@ -30,16 +29,22 @@ runLDA
     for i in range(0, iterations):
         for doc in corpus:
             for word in doc:
-                wordProbabilities[word] = calculateProbabilities(word)
-                updateDataStructures(word)
+                wordProbabilities = calculateProbabilities(word)
+                updateDataStructures(word, wordProbabilities)
+    printTopics()
 
 calculateProbabilities(word)
+    newWordProbabilities = []
     for topic in topicList:
         use p(w|t) and p(t|d) to calculate p(t|w) (this is where hyperparameters happen)
-        update wordProbabilities[word][topic]
+        put probability in newWordProbabilities at index topic
+    return newWordProbabilities
 
-updateDataStructures(word)
-    probabilities = wordProbabilities[word]
+updateDataStructures(word, wordProbabilities)
     update all data structures based on new probabilities
+
+printTopics()
+    for topic in topicList:
+        print(topic + "\n")
 
 '''
