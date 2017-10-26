@@ -16,7 +16,7 @@ Topic Information (indices line up)
 
 Document Information (indices line up)
     docList = [{topic:#docWords, topic:#docWords}, {topic:#docWords, topic:#docWords}]
-    docWordCounts = [#wordsInDoc, #wordsInDoc]
+    docWordCounts = [#wordsInDoc, #wordsInDoc] (not updated after init)
 
 
 
@@ -27,10 +27,10 @@ init
 
 runLDA
     for i in range(0, iterations):
-        for doc in corpus:
+        for doc in wordLocationList:
             for word in doc:
                 wordProbabilities = calculateProbabilities(word)
-                updateDataStructures(word, wordProbabilities)
+                updateDataStructures(word, doc, wordProbabilities)
     printTopics()
 
 calculateProbabilities(word)
@@ -40,8 +40,13 @@ calculateProbabilities(word)
         put probability in newWordProbabilities at index topic
     return newWordProbabilities
 
-updateDataStructures(word, wordProbabilities)
+updateDataStructures(word, doc, wordProbabilities)
     update all data structures based on new probabilities
+    get word's current topic using tagsByLocation
+    topicList(decrement old location, increment new location)
+    topicWordCounts(decrement/increment)
+    docList(find doc we were just in, decrement/increment docwords in topic if needed, decrement/increment docwords in other doc if needed)
+    tagsByLocation
 
 printTopics()
     for topic in topicList:
