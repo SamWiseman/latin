@@ -4,7 +4,7 @@ import csv
 
 #global data structures (see pseudoLDA.py for explanations)
 wordLocationList = []
-tagsByLocation = []
+topicsByLocation = []
 individualWordList = []
 wordTopicCounts = []
 wordCounts = []
@@ -19,7 +19,7 @@ def BigData():
 	wordLocationList = []
 	#2d array: outer array contains documents which are arrays of topics which exactly match the words
 	#in the previous array
-	tagsByLocation = []
+	topicsByLocation = []
 
 	#Word Information
 	#a list of all unique words
@@ -47,7 +47,7 @@ def BigData():
 
 ''' LDA methods for recalculating the probabilities of each word by topic '''
 def calculateProbabilities(docCoord, wordCoord):
-    word = wordsByLocation[docCoord][wordCoord]
+    word = wordLocationList[docCoord][wordCoord]
     newWordProbs = []
     for i in range(len(topicList)):
         #pwt = P(w|t)
@@ -74,7 +74,7 @@ structures to change its assignment
 """
 def updateDataStructures(word, doc, wordProbabilities):
 
-    wordString = wordsByLocation[doc][word]
+    wordString = wordLocationList[doc][word]
     oldTopic = topicsByLocation[doc][word]
 
     newTopic = wordProbabilities.index(max(wordProbabilities))
