@@ -104,5 +104,3 @@ def updateDataStructures(word, doc, wordProbabilities):
 
     docList[doc][oldTopic] = docList[doc][oldTopic] - 1
     docList[doc][newTopic] = docList[doc][newTopic] + 1
-
-    return
