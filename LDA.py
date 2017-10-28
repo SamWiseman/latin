@@ -23,7 +23,8 @@ in the topic.
 def printTopics():
     for topic in topicList:
         print("Topic " + str(topicList.index(topic)+1) + ": "),
-        print(", ".join(sorted(topic, key=topic.get)))
+        print(", ".join(sorted(topic, key=topic.get, reverse=True)))
+
 
 """
 runLDA(iterations, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -76,7 +77,7 @@ def BigData():
 
 ''' LDA methods for recalculating the probabilities of each word by topic '''
 
-
+#TODO: hyperparameters
 def calculateProbabilities(docCoord, wordCoord):
     word = wordsByLocation[docCoord][wordCoord]
     newWordProbs = []
@@ -91,6 +92,16 @@ def calculateProbabilities(docCoord, wordCoord):
         # ptw = P(t|w)
         ptw = pwt * ptd
         newWordProbs.append(ptw)
+        #TODO: once we get hyperparameters involved, will we need to re-regularize here?
+        '''
+        example:
+        
+        regularProbabilities = []
+        one = sum(newWordProbs)
+        for probability in newWordProbs:
+            regularProbabilities.append(probability/one)
+        return regularProbabilities
+        '''
     return newWordProbs
 
 
@@ -104,19 +115,18 @@ structures to change its assignment
 :param wordProbabilities: list -- probabilities of word in each topic
 :return: none
 """
-
 def updateDataStructures(word, doc, wordProbabilities):
     wordString = wordsByLocation[doc][word]
     oldTopic = topicsByLocation[doc][word]
 
-    newTopic = choice(range(0,len(wordProbabilities)), len(wordProbabilities), wordProbabilities)
+    newTopic = choice(range(0, len(wordProbabilities)), p=wordProbabilities)
     topicsByLocation[doc][word] = newTopic
 
-    topicList[oldTopic][wordString] = topicList[oldTopic][wordString] - 1
-    topicList[newTopic][wordString] = topicList[newTopic][wordString] + 1
+    topicList[oldTopic][wordString] -= 1
+    topicList[newTopic][wordString] += 1
 
-    topicWordCounts[oldTopic] = topicWordCounts[oldTopic] - 1
-    topicWordCounts[newTopic] = topicWordCounts[newTopic] + 1
+    topicWordCounts[oldTopic] -= 1
+    topicWordCounts[newTopic] += 1
 
-    docList[doc][oldTopic] = docList[doc][oldTopic] - 1
-    docList[doc][newTopic] = docList[doc][newTopic] + 1
+    docList[doc][oldTopic] -= 1
+    docList[doc][newTopic] += 1

@@ -45,7 +45,7 @@ updateDataStructures(word, doc, wordProbabilities)
     get word's current topic using tagsByLocation
     topicList(decrement old location, increment new location)
     topicWordCounts(decrement/increment)
-    docList(find doc we were just in, decrement/increment docwords in topic if needed, decrement/increment docwords in other doc if needed)
+    docList(find doc we were just in, decrement/increment docWords in topic if needed, decrement/increment docWords in other doc if needed)
     tagsByLocation
 
 printTopics()
@@ -70,5 +70,5 @@ topicList = [{"word1":0, "word2":1}]
 topicWordCounts = [1, 0]
 
 #Document Information (indices line up)
-docList = [[0,1],[1,0]]                 # (number of docwords in inner array corresponds to topic)
+docList = [[0,1],[1,0]]                 # (number of docWords in inner array corresponds to topic)
 docWordCounts = []                      # (not updated after init)
