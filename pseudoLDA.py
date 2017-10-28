@@ -72,35 +72,3 @@ topicWordCounts = [1, 0]
 #Document Information (indices line up)
 docList = [[0,1],[1,0]]                 # (number of docwords in inner array corresponds to topic)
 docWordCounts = []                      # (not updated after init)
-
-
-
-
-
-
-"""
-updateDataStructures(word, doc, wordProbabilities) -- this method chooses a new topic assignment for the 
-given instance of the word based on its calculated topic probabilities and updates all relevant data 
-structures to change its assignment
-
-:param word: int -- word index in location 2D arrays
-:param doc: int -- doc index in location 2D arrays
-:param wordProbabilities: list -- probabilities of word in each topic
-:return:
-"""
-def updateDataStructures(word, doc, wordProbabilities):
-
-    wordString = wordsByLocation[doc][word]
-    oldTopic = topicsByLocation[doc][word]
-
-    newTopic = wordProbabilities.index(max(wordProbabilities))
-    topicsByLocation[doc][word] = newTopic
-
-    topicList[oldTopic][wordString] = topicList[oldTopic][wordString] - 1
-    topicList[newTopic][wordString] = topicList[newTopic][wordString] + 1
-
-    topicWordCounts[oldTopic] = topicWordCounts[oldTopic] - 1
-    topicWordCounts[newTopic] = topicWordCounts[newTopic] + 1
-
-    docList[doc][oldTopic] = docList[doc][oldTopic] - 1
-    docList[doc][newTopic] = docList[doc][newTopic] + 1
