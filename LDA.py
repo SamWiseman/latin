@@ -51,17 +51,12 @@ class BigData:
     topicsByLocation = []
 
     # Word Information
-    # a list of all unique words 
-    individualWordList = []
-    # 2d array: outer array contains words (matched to index in individualWordList)
-    # inner array has the count of the word across the topics. index is the topic's "number"
-    # sam asks: could we use a dictionary instead to combine wordtopiccounts with individualwordlist
-    # that maps unique words to [topic1count, topic2count,...]
-    wordTopicCounts = []
-    # list of numbers corresponding to words individual word list (how many times each word appears)
-    # could this be a dictionary instead?
-    wordCounts = []
-
+    # dictionary mapping unique words to the number of times they appear
+    wordCounts = {}
+    # dictionary mapping unique words to an array indexed by topic of how many times they
+    # appear in each topic
+    wordTopicCounts = {}
+        
     # Topic Information
     # array of topics, where topics are dictionaries
     # keys are words and the values are counts for that word
@@ -101,17 +96,26 @@ class BigData:
             #the rest) of the arrays for some reason. and has an extra array at the end.
             for row in reader:
                 if curDoc == row[1]:
-                    wordsByLocation[curDocIndex].append(row[0])
+                    wordsByLocation[curDocIndex].append(row[0].lower())
                 else:
                     curDoc = row[1]
                     curDocIndex += 1
                     wordsByLocation.append([])
-                    wordsByLocation[curDocIndex].append(row[0])
+                    wordsByLocation[curDocIndex].append(row[0].lower())
                 #have a list representing each column in the doc
-                wordsColumn.append(row[0])
+                wordsColumn.append(row[0].lower())
                 docColumn.append(row[1])       
-        #load our unique words array by using set data structure
-        self.individualWordList = list(set(wordsColumn)).sort()
+        #load word counts into dictionary
+        sortedWords = sorted(wordsColumn)
+        count = 0
+        lastWord = sortedWords[0]
+        for word in sortedWords:
+            if word == lastWord:
+                count += 1
+            else:
+                self.wordCounts[lastWord] = count
+                count = 1
+            lastWord = word 
         
         
 #test function for data loading
