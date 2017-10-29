@@ -41,7 +41,6 @@ def runLDA(iterations, alpha, beta):
                 updateDataStructures(word, doc, wordProbabilities)
     printTopics()
 
-
 class BigData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
@@ -83,7 +82,8 @@ class BigData:
     def __init__(self, file, topicNum):
         self.file = file
         self.topicNum = topicNum
-        
+    
+    #reads the csv and loads the appropriate data structures. may be refactored by struct  
     def loadData(self):
         with open(self.file, 'r') as csvfile:
             reader = csv.reader(csvfile)
@@ -96,12 +96,12 @@ class BigData:
             #the rest) of the arrays for some reason. and has an extra array at the end.
             for row in reader:
                 if curDoc == row[1]:
-                    wordsByLocation[curDocIndex].append(row[0].lower())
+                    self.wordsByLocation[curDocIndex].append(row[0].lower())
                 else:
                     curDoc = row[1]
                     curDocIndex += 1
-                    wordsByLocation.append([])
-                    wordsByLocation[curDocIndex].append(row[0].lower())
+                    self.wordsByLocation.append([])
+                    self.wordsByLocation[curDocIndex].append(row[0].lower())
                 #have a list representing each column in the doc
                 wordsColumn.append(row[0].lower())
                 docColumn.append(row[1])       
@@ -117,7 +117,11 @@ class BigData:
                 count = 1
             lastWord = word 
         
-        
+        #count words in each document
+        docSet = set(docColumn)
+        for doc in docSet:
+            self.docWordCounts.append(docColumn.count(doc))
+            
 #test function for data loading
 def loadTest():
     data = BigData('wiki5Docs.csv', 0)
