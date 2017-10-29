@@ -123,9 +123,18 @@ class BigData:
         for doc in docSet:
             self.docWordCounts.append(docColumn.count(doc))
         
-        #randomly assign every word a topic and update wordTopicCounts accordingly
-        #to update the other topic-related instance variables we should use this same loop
-        #or use what's already in wordTopicCounts.
+        #build topicsByLocation by putting a random number in a slot for every word
+        for i in range(len(self.wordsByLocation)):
+            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))
+            
+        for i in range(len(self.wordsByLocation)):
+            for j in range(len(self.wordsByLocation[i])):
+                randTopic = random.randrange(self.numTopics)
+                self.topicsByLocation[i][j] = randTopic
+                
+        print(self.topicsByLocation)    
+        print(self.wordsByLocation)    
+        #update wordTopicCounts accordingly        
         for doc in self.wordsByLocation:
             for word in doc:
                 randTopic = random.randrange(self.numTopics)
