@@ -96,7 +96,6 @@ class BigData:
             docColumn = []
             curDoc = ""
             curDocIndex = -1
-            wordsByLocation.append([])
             #load our 2d wordsbylocation array
             #this almost works but it takes the first word out of the second (and maybe
             #the rest) of the arrays for some reason. and has an extra array at the end.
@@ -110,9 +109,7 @@ class BigData:
                     wordsByLocation[curDocIndex].append(row[0])
                 #have a list representing each column in the doc
                 wordsColumn.append(row[0])
-                docColumn.append(row[1])
-
-        print(wordsByLocation)        
+                docColumn.append(row[1])       
         #load our unique words array by using set data structure
         self.individualWordList = list(set(wordsColumn))
         
