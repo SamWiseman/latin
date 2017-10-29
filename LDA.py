@@ -92,9 +92,7 @@ class BigData:
             docColumn = []
             curDoc = ""
             curDocIndex = -1
-            #load our 2d wordsbylocation array
-            #this almost works but it takes the first word out of the second (and maybe
-            #the rest) of the arrays for some reason. and has an extra array at the end.
+            #load our 2d wordsByLocation array
             for row in reader:
                 if curDoc == row[1]:
                     self.wordsByLocation[curDocIndex].append(row[0].lower())
@@ -105,7 +103,8 @@ class BigData:
                     self.wordsByLocation[curDocIndex].append(row[0].lower())
                 #have a list representing each column in the doc
                 wordsColumn.append(row[0].lower())
-                docColumn.append(row[1])       
+                docColumn.append(row[1])  
+                     
         #load word counts into dictionary
         sortedWords = sorted(wordsColumn)
         count = 0
@@ -125,22 +124,20 @@ class BigData:
         
         #build topicsByLocation by putting a random number in a slot for every word
         for i in range(len(self.wordsByLocation)):
-            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))
-            
+            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))    
         for i in range(len(self.wordsByLocation)):
             for j in range(len(self.wordsByLocation[i])):
                 randTopic = random.randrange(self.numTopics)
                 self.topicsByLocation[i][j] = randTopic
-                
-        print(self.topicsByLocation)    
-        print(self.wordsByLocation)    
-        #update wordTopicCounts accordingly        
-        for doc in self.wordsByLocation:
-            for word in doc:
-                randTopic = random.randrange(self.numTopics)
+          
+        #create wordTopicCounts using the information in topicsByLocation       
+        for i in range(len(self.wordsByLocation)):
+            for j in range(len(self.wordsByLocation[i])):
+                word = self.wordsByLocation[i][j]
+                assignedTopic = self.topicsByLocation[i][j]
                 if word not in self.wordTopicCounts:
                     self.wordTopicCounts[word] = [0] * self.numTopics
-                self.wordTopicCounts[word][randTopic] += 1
+                self.wordTopicCounts[word][assignedTopic] += 1
         
 #test function for data loading
 def loadTest():
