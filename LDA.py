@@ -1,6 +1,7 @@
 '''This file implements LDA Topic Modeling'''
 
 import csv
+import random
 from numpy.random import choice
 
 # global data structures (see pseudoLDA.py for explanations)
@@ -77,11 +78,11 @@ class BigData:
     file = ""
     
     #number of topics we want in the algorithm 
-    topicNum = 0
+    numTopics = 0
     #constructor
-    def __init__(self, file, topicNum):
+    def __init__(self, file, numTopics):
         self.file = file
-        self.topicNum = topicNum
+        self.numTopics = numTopics
     
     #reads the csv and loads the appropriate data structures. may be refactored by struct  
     def loadData(self):
@@ -121,10 +122,20 @@ class BigData:
         docSet = set(docColumn)
         for doc in docSet:
             self.docWordCounts.append(docColumn.count(doc))
-            
+        
+        #randomly assign every word a topic and update wordTopicCounts accordingly
+        #to update the other topic-related instance variables we should use this same loop
+        #or use what's already in wordTopicCounts.
+        for doc in self.wordsByLocation:
+            for word in doc:
+                randTopic = random.randrange(self.numTopics)
+                if word not in self.wordTopicCounts:
+                    self.wordTopicCounts[word] = [0] * self.numTopics
+                self.wordTopicCounts[word][randTopic] += 1
+        
 #test function for data loading
 def loadTest():
-    data = BigData('wiki5Docs.csv', 0)
+    data = BigData('wiki5Docs.csv', 10)
     data.loadData()
     
 ''' LDA methods for recalculating the probabilities of each word by topic '''
