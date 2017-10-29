@@ -42,7 +42,7 @@ def runLDA(iterations, alpha, beta):
     printTopics()
 
 
-def BigData():
+class BigData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
     wordsByLocation = []
@@ -51,7 +51,7 @@ def BigData():
     topicsByLocation = []
 
     # Word Information
-    # a list of all unique words
+    # a list of all unique words 
     individualWordList = []
     # 2d array: outer array contains words (matched to index in individualWordList)
     # inner array has the count of the word across the topics. index is the topic's "number"
@@ -86,17 +86,25 @@ def BigData():
         self.file = file
         self.topicNum = topicNum
         
-    def loadData():
-        with open(self.file, 'rb') as csvfile:
-            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+    def loadData(self):
+        with open(self.file, 'r') as csvfile:
+            reader = csv.reader(csvfile)
             wordsColumn = []
             docColumn = []
             for row in reader:
+                splitString = row[0].split(',')
                 wordsColumn.append(row[0])
                 docColumn.append(row[1])
+                
+            #load our unique words array by using set data structure
+        self.individualWordList = list(set(wordsColumn))
+    
+#test function for data loading
+def loadTest():
+    data = BigData('wiki5Docs.csv', 0)
+    data.loadData()
     
 ''' LDA methods for recalculating the probabilities of each word by topic '''
-
 #TODO: hyperparameters
 def calculateProbabilities(docCoord, wordCoord):
     word = wordsByLocation[docCoord][wordCoord]
