@@ -73,8 +73,28 @@ def BigData():
     docList = []
     # a list of of the number of words in each document
     docWordCounts = []
-
-
+    
+    #consideration: the way the csv is organized could vary. should we standardize it as
+    #pat of preprocessing? we are currently using the format given by wikiParse.py
+    #working csv
+    file = ""
+    
+    #number of topics we want in the algorithm 
+    topicNum = 0
+    #constructor
+    def __init__(self, file, topicNum):
+        self.file = file
+        self.topicNum = topicNum
+        
+    def loadData():
+        with open(self.file, 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            wordsColumn = []
+            docColumn = []
+            for row in reader:
+                wordsColumn.append(row[0])
+                docColumn.append(row[1])
+    
 ''' LDA methods for recalculating the probabilities of each word by topic '''
 
 #TODO: hyperparameters
