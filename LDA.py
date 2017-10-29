@@ -55,8 +55,11 @@ class BigData:
     individualWordList = []
     # 2d array: outer array contains words (matched to index in individualWordList)
     # inner array has the count of the word across the topics. index is the topic's "number"
+    # sam asks: could we use a dictionary instead to combine wordtopiccounts with individualwordlist
+    # that maps unique words to [topic1count, topic2count,...]
     wordTopicCounts = []
     # list of numbers corresponding to words individual word list (how many times each word appears)
+    # could this be a dictionary instead?
     wordCounts = []
 
     # Topic Information
@@ -91,14 +94,29 @@ class BigData:
             reader = csv.reader(csvfile)
             wordsColumn = []
             docColumn = []
+            curDoc = ""
+            curDocIndex = -1
+            wordsByLocation.append([])
+            #load our 2d wordsbylocation array
+            #this almost works but it takes the first word out of the second (and maybe
+            #the rest) of the arrays for some reason. and has an extra array at the end.
             for row in reader:
-                splitString = row[0].split(',')
+                if curDoc == row[1]:
+                    wordsByLocation[curDocIndex].append(row[0])
+                else:
+                    curDoc = row[1]
+                    curDocIndex += 1
+                    wordsByLocation.append([])
+                    wordsByLocation[curDocIndex].append(row[0])
+                #have a list representing each column in the doc
                 wordsColumn.append(row[0])
                 docColumn.append(row[1])
-                
-            #load our unique words array by using set data structure
+
+        print(wordsByLocation)        
+        #load our unique words array by using set data structure
         self.individualWordList = list(set(wordsColumn))
-    
+        
+        
 #test function for data loading
 def loadTest():
     data = BigData('wiki5Docs.csv', 0)
