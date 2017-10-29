@@ -111,10 +111,10 @@ class BigData:
                 #have a list representing each column in the doc
                 wordsColumn.append(row[0])
                 docColumn.append(row[1])
-
+                
         print(wordsByLocation)        
         #load our unique words array by using set data structure
-        self.individualWordList = list(set(wordsColumn))
+        self.individualWordList = list(set(wordsColumn)).sort()
         
         
 #test function for data loading
