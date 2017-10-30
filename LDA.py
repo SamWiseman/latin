@@ -154,6 +154,14 @@ class BigData:
                 self.docList[i][topic] += 1
         print (self.docList)
                 
+        self.topicList = [{}] * self.numTopics
+        for word in self.wordTopicCounts:
+            wordTopics = self.wordTopicCounts[word]
+            for i in range(self.numTopics):
+                self.topicList[i][word] = wordTopics[i]
+        
+            
+        
 #test function for data loading
 def loadTest():
     data = BigData('wiki5Docs.csv', 10)
