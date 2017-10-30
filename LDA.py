@@ -147,19 +147,22 @@ class BigData:
             self.docList.append([])
             for j in range(self.numTopics):
                 self.docList[i].append(0)
-        print(self.docList)
         #i indexes by document in topicsbylocation, then the topic number becomes an index
         for i in range(len(self.topicsByLocation)):
             for topic in self.topicsByLocation[i]: 
                 self.docList[i][topic] += 1
-        print (self.docList)
                 
+        #loading topicList and topicWordCounts
+        self.topicWordCounts = [0] * self.numTopics
         self.topicList = [{}] * self.numTopics
         for word in self.wordTopicCounts:
             wordTopics = self.wordTopicCounts[word]
             for i in range(self.numTopics):
                 self.topicList[i][word] = wordTopics[i]
-        
+                
+                #self.topicWordCounts[i] += wordTopics[i]
+                if wordTopics[i] != 0:
+                    self.topicWordCounts[i] += 1
             
         
 #test function for data loading
