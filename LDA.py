@@ -94,8 +94,10 @@ class BigData:
             curDocIndex = -1
             #load our 2d wordsByLocation array
             for row in reader:
+                #add the word to the current array if word's doc is curDoc
                 if curDoc == row[1]:
                     self.wordsByLocation[curDocIndex].append(row[0].lower())
+                #add the word to a new doc array if word's doc is not curDoc
                 else:
                     curDoc = row[1]
                     curDocIndex += 1
