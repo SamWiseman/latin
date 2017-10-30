@@ -119,7 +119,7 @@ class BigData:
                 count = 1
             lastWord = word 
         
-        #count words in each document
+        #count words in each document (docWordCounts)
         docSet = set(docColumn)
         for doc in docSet:
             self.docWordCounts.append(docColumn.count(doc))
@@ -141,6 +141,19 @@ class BigData:
                     self.wordTopicCounts[word] = [0] * self.numTopics
                 self.wordTopicCounts[word][assignedTopic] += 1
         
+        #todo: doclist, topiclist, topicwordcounts
+        #create docList
+        for i in range(len(self.wordsByLocation)):
+            self.docList.append([])
+            for j in range(self.numTopics):
+                self.docList[i].append(0)
+        print(self.docList)
+        #i indexes by document in topicsbylocation, then the topic number becomes an index
+        for i in range(len(self.topicsByLocation)):
+            for topic in self.topicsByLocation[i]: 
+                self.docList[i][topic] += 1
+        print (self.docList)
+                
 #test function for data loading
 def loadTest():
     data = BigData('wiki5Docs.csv', 10)
