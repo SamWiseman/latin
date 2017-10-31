@@ -2,6 +2,7 @@
 
 import csv
 import random
+import sys
 from numpy.random import choice
 
 """
@@ -13,7 +14,7 @@ for each iteration and printing at the end.
 :param alpha: float -- hyperparameter to add to each P(w|t)
 :param beta: float -- hyperparameter to add to each P(t|d)
 """
-def runLDA(iterations, file, topics, alpha, beta):
+def runLDA(iterations, file, topics, alpha=0, beta=0):
     corpus = CorpusData(file, topics)
     for i in range(0, iterations):
         for doc in corpus.wordsByLocation:
@@ -196,3 +197,14 @@ class CorpusData:
         '''
         return newWordProbs
 
+#tiny test function
+def main():
+    iterations = sys.argv[1]
+    filename = sys.argv[2]
+    topics = sys.argv[3]
+    runLDA(iterations, filename, topics)
+    if len(sys.argv) != 4:
+        print("Usage: LDA.py iterations filename topics")
+
+if __name__ == "__main__":
+    main()
