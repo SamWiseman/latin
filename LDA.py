@@ -160,9 +160,9 @@ class BigData:
             for i in range(self.numTopics):
                 self.topicList[i][word] = wordTopics[i]
                 
-                #self.topicWordCounts[i] += wordTopics[i]
-                if wordTopics[i] != 0:
-                    self.topicWordCounts[i] += 1
+                self.topicWordCounts[i] += wordTopics[i]
+                #if wordTopics[i] != 0:
+                #    self.topicWordCounts[i] += 1
             
         
 #test function for data loading
