@@ -208,6 +208,7 @@ structures to change its assignment
 :param doc: int -- doc index in location 2D arrays
 :param wordProbabilities: list -- probabilities of word in each topic
 :return: none
+@TODO: use class-based update method for topic reassignment
 """
 def updateDataStructures(word, doc, wordProbabilities):
     wordString = wordsByLocation[doc][word]
