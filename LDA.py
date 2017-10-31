@@ -16,11 +16,13 @@ for each iteration and printing at the end.
 """
 def runLDA(iterations, file, topics, alpha=0, beta=0):
     corpus = CorpusData(file, topics)
+    corpus.loadData()
     for i in range(0, iterations):
-        for doc in corpus.wordsByLocation:
-            for word in doc:
+        for doc in range(0, len(corpus.wordsByLocation)):
+            for word in range(0, len(corpus.wordsByLocation[doc])):
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 oldTopic = corpus.topicsByLocation[doc][word]
+                print("wordProbs:", wordProbabilities)
                 newTopic = choice(range(0, len(wordProbabilities)), p=wordProbabilities)
                 corpus.updateDataStructures(word, doc, oldTopic, newTopic)
     corpus.printTopics()
@@ -162,10 +164,13 @@ class CorpusData:
     def updateDataStructures(self, word, doc, oldTopic, newTopic):
         wordString = self.wordsByLocation[doc][word]
         self.topicsByLocation[doc][word] = newTopic
+
         self.topicList[oldTopic][wordString] -= 1
         self.topicList[newTopic][wordString] += 1
+
         self.topicWordCounts[oldTopic] -= 1
         self.topicWordCounts[newTopic] += 1
+
         self.docList[doc][oldTopic] -= 1
         self.docList[doc][newTopic] += 1
     
@@ -187,24 +192,27 @@ class CorpusData:
             newWordProbs.append(ptw)
         #TODO: once we get hyperparameters involved, will we need to re-regularize here?
         '''
-        example:
-        
         regularProbabilities = []
         one = sum(newWordProbs)
         for probability in newWordProbs:
-            regularProbabilities.append(probability/one)
+            if one == 0:
+                regularProbabilities.append(0)
+            else:
+                regularProbabilities.append(probability/one)
         return regularProbabilities
         '''
         return newWordProbs
 
 #tiny test function
 def main():
-    iterations = sys.argv[1]
-    filename = sys.argv[2]
-    topics = sys.argv[3]
-    runLDA(iterations, filename, topics)
     if len(sys.argv) != 4:
         print("Usage: LDA.py iterations filename topics")
+    else:
+        iterations = int(sys.argv[1])
+        filename = sys.argv[2]
+        topics = int(sys.argv[3])
+        runLDA(iterations, filename, topics)
+
 
 if __name__ == "__main__":
     main()
