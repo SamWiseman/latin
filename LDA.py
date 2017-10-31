@@ -5,6 +5,7 @@ import random
 from numpy.random import choice
 
 # global data structures (see pseudoLDA.py for explanations)
+#TODO: take this out
 wordsByLocation = []
 topicsByLocation = []
 individualWordList = []
@@ -20,6 +21,7 @@ printTopics() -- this method prints each topic in topicList on a new line in the
 "Topic 1: word1, word2, word3, etc." The words are sorted according to highest incidence 
 in the topic.
 """
+#TODO: put this in the class
 #TODO: print to file instead of to command line
 def printTopics():
     for topic in topicList:
