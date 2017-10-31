@@ -42,7 +42,7 @@ def runLDA(iterations, alpha, beta):
                 updateDataStructures(word, doc, wordProbabilities)
     printTopics()
 
-class BigData:
+class CorpusData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
     wordsByLocation = []
@@ -160,14 +160,14 @@ class BigData:
             for i in range(self.numTopics):
                 self.topicList[i][word] = wordTopics[i]
                 
-                #self.topicWordCounts[i] += wordTopics[i]
-                if wordTopics[i] != 0:
-                    self.topicWordCounts[i] += 1
+                self.topicWordCounts[i] += wordTopics[i]
+                #if wordTopics[i] != 0:
+                #    self.topicWordCounts[i] += 1
             
         
 #test function for data loading
 def loadTest():
-    data = BigData('wiki5Docs.csv', 10)
+    data = CorpusData('wiki5Docs.csv', 10)
     data.loadData()
     
 ''' LDA methods for recalculating the probabilities of each word by topic '''
