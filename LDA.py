@@ -20,11 +20,12 @@ def runLDA(iterations, file, topics, alpha=0, beta=0):
     for i in range(0, iterations):
         for doc in range(0, len(corpus.wordsByLocation)):
             for word in range(0, len(corpus.wordsByLocation[doc])):
-                wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 oldTopic = corpus.topicsByLocation[doc][word]
+                corpus.removeWordFromDataStructures(word, doc, oldTopic)
+                wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 print("wordProbs:", wordProbabilities)
                 newTopic = choice(range(0, len(wordProbabilities)), p=wordProbabilities)
-                corpus.updateDataStructures(word, doc, oldTopic, newTopic)
+                corpus.addWordToDataStructures(word, doc, newTopic)
     corpus.printTopics()
 
 class CorpusData:
@@ -126,7 +127,6 @@ class CorpusData:
                     self.wordTopicCounts[word] = [0] * self.numTopics
                 self.wordTopicCounts[word][assignedTopic] += 1
         
-        #todo: doclist, topiclist, topicwordcounts
         #create docList
         for i in range(len(self.wordsByLocation)):
             self.docList.append([])
@@ -161,17 +161,17 @@ class CorpusData:
             print("Topic " + str(self.topicList.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
-    def updateDataStructures(self, word, doc, oldTopic, newTopic):
+    def removeWordFromDataStructures(self, word, doc, oldTopic):
+        wordString = self.wordsByLocation[doc][word]
+        self.topicList[oldTopic][wordString] -= 1
+        self.topicWordCounts[oldTopic] -= 1
+        self.docList[doc][oldTopic] -= 1
+
+    def addWordToDataStructures(self, word, doc, newTopic):
         wordString = self.wordsByLocation[doc][word]
         self.topicsByLocation[doc][word] = newTopic
-
-        self.topicList[oldTopic][wordString] -= 1
         self.topicList[newTopic][wordString] += 1
-
-        self.topicWordCounts[oldTopic] -= 1
         self.topicWordCounts[newTopic] += 1
-
-        self.docList[doc][oldTopic] -= 1
         self.docList[doc][newTopic] += 1
     
     ''' LDA methods for recalculating the probabilities of each word by topic '''
