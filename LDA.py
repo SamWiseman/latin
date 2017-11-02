@@ -5,6 +5,7 @@ import random
 import sys
 from numpy.random import choice
 import time
+import math
 
 """
 runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -180,6 +181,39 @@ class CorpusData:
         self.topicWordCounts[newTopic] += 1
         self.docList[doc][newTopic] += 1
     
+    #method to remove words that appear in <5% of docs or >90% of docs
+    def removeStopWords(self):
+        #records the number of documents the word appears in.
+        wordDocCounts = dict.fromkeys(self.wordCounts, 0)
+        for doc in self.wordsByLocation:
+            wordInDoc = []
+            for word in doc:
+                if word not in wordInDoc:
+                    wordInDoc.append(word)
+                    
+                    #this is breaking on the word "zwiep"
+                    #probably lost the last word
+                    try:
+                        wordDocCounts[word] += 1
+                    except:
+                        print("couldn't print " + word)
+        
+        #TODO: actually remove the words
+        under5PercentWords = []
+        over90PercentWords = []
+        lowerBound = math.ceil(len(self.wordsByLocation) * 0.15)
+        upperBound = math.ceil(len(self.wordsByLocation) * 0.90)
+        for word in wordDocCounts:
+            if wordDocCounts[word] <= lowerBound:
+                under5PercentWords.append(word)
+            elif wordDocCounts[word] >= upperBound:
+                over90PercentWords.append(word)
+            else:
+                print(word)
+        #print(under5PercentWords)
+        print(lowerBound)
+        print(upperBound)
+    
     ''' LDA methods for recalculating the probabilities of each word by topic '''
     #TODO: hyperparameter inclusion in calculations
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
@@ -208,6 +242,12 @@ class CorpusData:
         return regularProbabilities
         '''
         return newWordProbs
+
+#testing the stopwords function, should be removed later
+def testLoad():
+    corpus = CorpusData("wiki.csv", 5)
+    corpus.loadData()
+    corpus.removeStopWords()
 
 #tiny test function
 def main():

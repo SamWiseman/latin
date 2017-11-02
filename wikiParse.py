@@ -23,7 +23,7 @@ def main():
             pageHtml = page.json()["parse"]["text"]["*"]
             #parse out html tags and nonletters
             for word in re.compile(r'<.*?>|[^a-zA-Z ]').sub('', pageHtml).encode('ascii', 'ignore').split():
-                csvwriter.writerow([word, pageTitle])
+                csvwriter.writerow([word.lower(), pageTitle])
     
 
 if __name__ == "__main__":
