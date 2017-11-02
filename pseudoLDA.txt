@@ -1,21 +1,21 @@
 DATA STRUCTURES
 
 Location Information (2D arrays, inner array for words, outer array for docs)
-    wordsByLocation = [[word, word, word], [word,word,word]]
-    topicsByLocation = [[tag, tag, tag], [tag, tag, tag]]
+    wordLocationArray = [[word, word, word], [word,word,word]]
+    topicAssignmentByLoc = [[tag, tag, tag], [tag, tag, tag]]
 
 Word Information (indices line up)
-    individualWordList = [word, word, word] (not updated after init)
-    wordTopicCounts = [[count,count], [count,count]] (index of count in inner array corresponds to topic)
-    wordCounts = [int, int, int] (not updated after init)
+    uniqueWordList = [word, word, word] (not updated after init)
+    wordDistributionAcrossTopics = [[count,count], [count,count]] (index of count in inner array corresponds to topic)
+    numberTotalOccurrences = [int, int, int] (not updated after init)
 
 Topic Information (indices line up)
-    topicList = [{word:count, word:count}, {word:count,word:count}]
-    topicWordCounts = [#wordsInTopic, #wordsInTopic]
+    topicWordInstancesDict = [{word:count, word:count}, {word:count,word:count}]
+    topicTotalWordCount = [#wordsInTopic, #wordsInTopic]
 
 Document Information (indices line up)
-    docList = [[#docWords, #docWords], [#docWords, #docWords]] (outer array is list of docs, inner array is #docwords in each topic)
-    docWordCounts = [#wordsInDoc, #wordsInDoc] (not updated after init)
+    docTopicalWordCounts = [[#docWords, #docWords], [#docWords, #docWords]] (outer array is list of docs, inner array is #docwords in each topic)
+    docTotalWordCounts = [#wordsInDoc, #wordsInDoc] (not updated after init)
 
 
 
@@ -51,3 +51,17 @@ printTopics()
     for topic in topicList:
         print(topic + "\n")
 
+
+
+EFFICIENCY
+
+n = number of words in corpus
+i = number iterations
+t = number topics
+
+calculateProbabilities for 1 word runs in O(t) time
+updateDataStructures for 1 word runs in O(1) time
+
+
+worst case scenario: n = t (every word is its own topic)
+1 iteration of runLDA runs in O(n^2) time
