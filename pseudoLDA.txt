@@ -1,4 +1,3 @@
-'''
 DATA STRUCTURES
 
 Location Information (2D arrays, inner array for words, outer array for docs)
@@ -52,23 +51,3 @@ printTopics()
     for topic in topicList:
         print(topic + "\n")
 
-'''
-
-
-#DUMMY DATA STRUCTURES
-#Location Information (2D arrays, inner array for words, outer array for docs)
-wordsByLocation = [["word", "word"]]
-topicsByLocation = [[0,1]]              #topics will be ints since they're essentially indices in topicList
-
-#Word Information (indices line up)
-individualWordList = ["word", "word"]   # (not updated after init)
-wordTopicCounts = [[0, 1]]              # (index of count in inner array corresponds to topic)
-wordCounts = [0, 1]                     # (not updated after init)
-
-#Topic Information (indices line up)
-topicList = [{"word1":0, "word2":1}]
-topicWordCounts = [1, 0]
-
-#Document Information (indices line up)
-docList = [[0,1],[1,0]]                 # (number of docWords in inner array corresponds to topic)
-docWordCounts = []                      # (not updated after init)
