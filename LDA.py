@@ -3,6 +3,7 @@
 import csv
 import random
 import sys
+from collections import OrderedDict, Counter
 from numpy.random import choice
 import time
 import math
@@ -101,6 +102,8 @@ class CorpusData:
                 docColumn.append(row[1])  
                      
         #load word counts into dictionary
+        self.wordCounts = Counter(wordsColumn)
+        '''
         sortedWords = sorted(wordsColumn)
         count = 0
         lastWord = sortedWords[0]
@@ -111,9 +114,9 @@ class CorpusData:
                 self.wordCounts[lastWord] = count
                 count = 1
             lastWord = word 
-        
+        '''
         #count words in each document (docWordCounts)
-        docSet = set(docColumn)
+        docSet = list(OrderedDict.fromkeys(docColumn))
         for doc in docSet:
             self.docWordCounts.append(docColumn.count(doc))
         
@@ -146,12 +149,11 @@ class CorpusData:
                 
         #loading topicList and topicWordCounts
         self.topicWordCounts = [0] * self.numTopics
-        self.topicList = [{}] * self.numTopics
+        self.topicList = [{} for _ in range(self.numTopics)]
         for word in self.wordTopicCounts:
             wordTopics = self.wordTopicCounts[word]
             for i in range(self.numTopics):
                 self.topicList[i][word] = wordTopics[i]
-                
                 self.topicWordCounts[i] += wordTopics[i]
                 #if wordTopics[i] != 0:
                 #    self.topicWordCounts[i] += 1
