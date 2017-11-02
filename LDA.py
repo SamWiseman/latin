@@ -3,6 +3,7 @@
 import csv
 import random
 from numpy.random import choice
+import time
 
 # global data structures (see pseudoLDA.py for explanations)
 wordsByLocation = []
@@ -36,10 +37,15 @@ for each iteration and printing at the end.
 """
 def runLDA(iterations, alpha, beta):
     for i in range(0, iterations):
+        #getting start time to measure runtime
+        #delete the line below for the final release!
+        startTime = time.clock()
         for doc in wordsByLocation:
             for word in doc:
                 wordProbabilities = calculateProbabilities(doc, word)
                 updateDataStructures(word, doc, wordProbabilities)
+        #printing the elapsed time (real-time)
+        print("Time for iteration " + str(i) + ": " + str(time.clock() -startTime))
     printTopics()
 
 class BigData:
