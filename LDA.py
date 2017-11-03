@@ -29,11 +29,15 @@ def runLDA(iterations, file, topics, alpha=0, beta=0):
                 oldTopic = corpus.topicsByLocation[doc][word]
                 corpus.removeWordFromDataStructures(word, doc, oldTopic)
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
-                print("wordProbs:", wordProbabilities)
                 newTopic = choice(range(0, len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
+    # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
+    for topic in corpus.topicList:
+        for key in list(topic.keys()):
+            if topic[key] == 0:
+                del topic[key]
     corpus.printTopics()
 
 class CorpusData:
@@ -225,25 +229,22 @@ class CorpusData:
             # pwt = P(w|t)
             topicDict = self.topicList[i]
             wordCount = topicDict[word]
-            pwt = wordCount / self.topicWordCounts[i]
+            pwt = (wordCount + alpha) / (self.topicWordCounts[i] + alpha)
             # ptd = P(t|d)
             wordsInTopicInDoc = self.docList[docCoord][i]
-            ptd = wordsInTopicInDoc / self.docWordCounts[docCoord]
+            ptd = (wordsInTopicInDoc + beta) / (self.docWordCounts[docCoord] + beta)
             # ptw = P(t|w)
             ptw = pwt * ptd
             newWordProbs.append(ptw)
-        #TODO: once we get hyperparameters involved, will we need to re-regularize here?
-        '''
-        regularProbabilities = []
-        one = sum(newWordProbs)
+        #normalize probabilities
+        normalizedProbabilities = []
+        rawsum = sum(newWordProbs)
         for probability in newWordProbs:
-            if one == 0:
-                regularProbabilities.append(0)
+            if rawsum == 0:
+                normalizedProbabilities.append(0.0)
             else:
-                regularProbabilities.append(probability/one)
-        return regularProbabilities
-        '''
-        return newWordProbs
+                normalizedProbabilities.append(probability/rawsum)
+        return normalizedProbabilities
 
 #testing the stopwords function, should be removed later
 def testLoad():
@@ -253,14 +254,22 @@ def testLoad():
 
 #tiny test function
 def main():
+    if len(sys.argv) != 4 and len(sys.argv) != 6:
+        print("Usage: LDA.py iterations filename topics (optional: alpha=0.8 beta=0.8)")
+    if len(sys.argv) == 6:
+        iterations = int(sys.argv[1])
+        filename = sys.argv[2]
+        topics = int(sys.argv[3])
+        alpha = float(sys.argv[4])
+        beta = float(sys.argv[5])
+        runLDA(iterations, filename, topics, alpha, beta)
     if len(sys.argv) != 4:
         print("Usage: LDA.py iterations filename topics")
     else:
         iterations = int(sys.argv[1])
         filename = sys.argv[2]
         topics = int(sys.argv[3])
-        runLDA(iterations, filename, topics)
-
+        runLDA(iterations, filename, topics, 0.8, 0.8)
 
 if __name__ == "__main__":
     main()
