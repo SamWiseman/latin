@@ -1,6 +1,7 @@
 '''This file implements LDA Topic Modeling'''
 
 import csv
+import json
 import random
 import sys
 from collections import OrderedDict, Counter
@@ -17,22 +18,23 @@ for each iteration and printing at the end.
 :param alpha: float -- hyperparameter to add to each P(w|t)
 :param beta: float -- hyperparameter to add to each P(t|d)
 """
-def runLDA(iterations, file, topics, alpha=0, beta=0):
-    corpus = CorpusData(file, topics)
+def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
+    corpus = CorpusData(readfile, topics)
     corpus.loadData()
     for i in range(0, iterations):
         #getting start time to measure runtime
         #delete the line below for the final release!
         startTime = time.clock()
-        for doc in range(0, len(corpus.wordsByLocation)):
-            for word in range(0, len(corpus.wordsByLocation[doc])):
+        for doc in range(len(corpus.wordsByLocation)):
+            for word in range(len(corpus.wordsByLocation[doc])):
                 oldTopic = corpus.topicsByLocation[doc][word]
                 corpus.removeWordFromDataStructures(word, doc, oldTopic)
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
-                newTopic = choice(range(0, len(wordProbabilities)), p=wordProbabilities)
+                newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
+    corpus.encodeData(readfile, encodefile)
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
     for topic in corpus.topicList:
         for key in list(topic.keys()):
@@ -174,6 +176,22 @@ class CorpusData:
             print("Topic " + str(self.topicList.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
+    def encodeData(self, readfile, encodefile):
+        for doc in self.topicsByLocation:
+            for location in range(len(doc)):
+             doc[location] = int(doc[location])
+        dumpDict = {'dataset': readfile,
+                    'wordsByLocation': self.wordsByLocation,
+                    'topicsByLocation': self.topicsByLocation,
+                    'wordCounts': self.wordCounts,
+                    'wordTopicCounts': self.wordTopicCounts,
+                    'topicList': self.topicList,
+                    'topicWordCounts': self.topicWordCounts,
+                    'docList': self.docList,
+                    'docWordCounts': self.docWordCounts}
+        with open(encodefile, 'w') as outfile:
+            json.dump(dumpDict, outfile, indent=4)
+
     def removeWordFromDataStructures(self, word, doc, oldTopic):
         wordString = self.wordsByLocation[doc][word]
         self.topicList[oldTopic][wordString] -= 1
@@ -207,7 +225,7 @@ class CorpusData:
         #TODO: actually remove the words
         under5PercentWords = []
         over90PercentWords = []
-        lowerBound = math.ceil(len(self.wordsByLocation) * 0.15)
+        lowerBound = math.ceil(len(self.wordsByLocation) * 0.05)
         upperBound = math.ceil(len(self.wordsByLocation) * 0.90)
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound:
@@ -221,7 +239,6 @@ class CorpusData:
         print(upperBound)
     
     ''' LDA methods for recalculating the probabilities of each word by topic '''
-    #TODO: hyperparameter inclusion in calculations
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
         word = self.wordsByLocation[docCoord][wordCoord]
         newWordProbs = []
@@ -254,22 +271,22 @@ def testLoad():
 
 #tiny test function
 def main():
-    if len(sys.argv) != 4 and len(sys.argv) != 6:
-        print("Usage: LDA.py iterations filename topics (optional: alpha=0.8 beta=0.8)")
-    if len(sys.argv) == 6:
+    if len(sys.argv) != 5 and len(sys.argv) != 7:
+        print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
+    elif len(sys.argv) == 7:
         iterations = int(sys.argv[1])
-        filename = sys.argv[2]
+        readfile = sys.argv[2]
         topics = int(sys.argv[3])
-        alpha = float(sys.argv[4])
-        beta = float(sys.argv[5])
-        runLDA(iterations, filename, topics, alpha, beta)
-    if len(sys.argv) != 4:
-        print("Usage: LDA.py iterations filename topics")
+        encodefile = sys.argv[4]
+        alpha = float(sys.argv[5])
+        beta = float(sys.argv[6])
+        runLDA(iterations, readfile, encodefile, topics, alpha, beta)
     else:
         iterations = int(sys.argv[1])
-        filename = sys.argv[2]
+        readfile = sys.argv[2]
         topics = int(sys.argv[3])
-        runLDA(iterations, filename, topics, 0.8, 0.8)
+        encodefile = sys.argv[4]
+        runLDA(iterations, readfile, encodefile, topics, 0.8, 0.8)
 
 if __name__ == "__main__":
     main()
