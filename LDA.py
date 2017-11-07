@@ -41,6 +41,7 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
             if topic[key] == 0:
                 del topic[key]
     corpus.printTopics()
+    corpus.output()
 
 class CorpusData:
     # Location Information
@@ -262,6 +263,40 @@ class CorpusData:
             else:
                 normalizedProbabilities.append(probability/rawsum)
         return normalizedProbabilities
+
+    def output(self):
+        loadData = []
+        largestTopic = max(self.topicWordCounts)
+        for i in range(largestTopic+2):
+            new = []
+            for j in range(self.numTopics*3):
+                new.append(0)
+            loadData.append(new)
+
+        # formatting
+        for i in range(self.numTopics):
+            loadData[0][3*i] = ''
+            loadData[0][3*i+1] = 'Topic' + str(i + 1)
+            loadData[0][3*i+2] = ''
+            loadData[1][3*i] = 'Word'
+            loadData[1][3*i+1] = 'Count'
+            loadData[1][3*i+2] = 'Percentage'
+
+        for i in range(self.numTopics):
+            topicAsList = []
+            for k,v in self.topicList[i].items():
+                percent = (v / self.topicWordCounts[i])*100
+                topicAsList.append([k,v,percent])
+            #TODO: sort topicAsList
+            for j in range(len(topicAsList)):
+                loadData[j + 2][3 * i] = topicAsList[j][0]
+                loadData[j + 2][3 * i + 1] = topicAsList[j][1]
+                loadData[j + 2][3 * i + 2] = topicAsList[j][2]
+
+        with open('output.csv', 'w', newline='') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for row in loadData:
+                filewriter.writerow(row)
 
 #testing the stopwords function, should be removed later
 def testLoad():
