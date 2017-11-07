@@ -25,9 +25,9 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
         #getting start time to measure runtime
         #delete the line below for the final release!
         startTime = time.clock()
-        for doc in range(len(corpus.wordsByLocation)):
-            for word in range(len(corpus.wordsByLocation[doc])):
-                oldTopic = corpus.topicsByLocation[doc][word]
+        for doc in range(len(corpus.wordLocationArray)):
+            for word in range(len(corpus.wordLocationArray[doc])):
+                oldTopic = corpus.topicAssignmentByLoc[doc][word]
                 corpus.removeWordFromDataStructures(word, doc, oldTopic)
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
@@ -36,7 +36,7 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
     corpus.encodeData(readfile, encodefile)
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
-    for topic in corpus.topicList:
+    for topic in corpus.topicWordInstancesDict:
         for key in list(topic.keys()):
             if topic[key] == 0:
                 del topic[key]
@@ -46,32 +46,32 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
 class CorpusData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
-    wordsByLocation = []
+    wordLocationArray = []
     # 2d array: outer array contains documents which are arrays of topics which exactly match the words
     # in the previous array
-    topicsByLocation = []
+    topicAssignmentByLoc = []
 
     # Word Information
     # dictionary mapping unique words to the number of times they appear
-    wordCounts = {}
+    uniqueWordDict = {}
     # dictionary mapping unique words to an array indexed by topic of how many times they
     # appear in each topic
-    wordTopicCounts = {}
+    wordDistributionAcrossTopics = {}
         
     # Topic Information
     # array of topics, where topics are dictionaries
     # keys are words and the values are counts for that word
-    topicList = []
+    topicWordInstancesDict = []
     # array of numbers, where each number is the number of words in the topic (corresponding by index)
-    topicWordCounts = []
+    topicTotalWordCount = []
 
     # Document Information
     # array of documents, each document is an array
     # each index is a topic
     # each value is number of words in the document that belong to that topic
-    docList = []
+    docTopicalWordDist = []
     # a list of of the number of words in each document
-    docWordCounts = []
+    docTotalWordCounts = []
     
     #consideration: the way the csv is organized could vary. should we standardize it as
     #pat of preprocessing? we are currently using the format given by wikiParse.py
@@ -97,19 +97,19 @@ class CorpusData:
             for row in reader:
                 #add the word to the current array if word's doc is curDoc
                 if curDoc == row[1]:
-                    self.wordsByLocation[curDocIndex].append(row[0].lower())
+                    self.wordLocationArray[curDocIndex].append(row[0].lower())
                 #add the word to a new doc array if word's doc is not curDoc
                 else:
                     curDoc = row[1]
                     curDocIndex += 1
-                    self.wordsByLocation.append([])
-                    self.wordsByLocation[curDocIndex].append(row[0].lower())
+                    self.wordLocationArray.append([])
+                    self.wordLocationArray[curDocIndex].append(row[0].lower())
                 #have a list representing each column in the doc
                 wordsColumn.append(row[0].lower())
                 docColumn.append(row[1])  
                      
         #load word counts into dictionary
-        self.wordCounts = Counter(wordsColumn)
+        self.uniqueWordDict = Counter(wordsColumn)
         '''
         sortedWords = sorted(wordsColumn)
         count = 0
@@ -125,47 +125,47 @@ class CorpusData:
         #count words in each document (docWordCounts)
         docSet = list(OrderedDict.fromkeys(docColumn))
         for doc in docSet:
-            self.docWordCounts.append(docColumn.count(doc))
+            self.docTotalWordCounts.append(docColumn.count(doc))
         
         #build topicsByLocation by going through each topic in a loop
-        for i in range(len(self.wordsByLocation)):
-            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))
+        for i in range(len(self.wordLocationArray)):
+            self.topicAssignmentByLoc.append([0] * len(self.wordLocationArray[i]))
         chosenTopic = 0    
-        for i in range(len(self.wordsByLocation)):
-            for j in range(len(self.wordsByLocation[i])):
+        for i in range(len(self.wordLocationArray)):
+            for j in range(len(self.wordLocationArray[i])):
                 chosenTopic += 1
                 chosenTopic %= self.numTopics
                 #randTopic = random.randrange(self.numTopics)
                 #self.topicsByLocation[i][j] = randTopic
-                self.topicsByLocation[i][j] = chosenTopic
+                self.topicAssignmentByLoc[i][j] = chosenTopic
           
         #create wordTopicCounts using the information in topicsByLocation       
-        for i in range(len(self.wordsByLocation)):
-            for j in range(len(self.wordsByLocation[i])):
-                word = self.wordsByLocation[i][j]
-                assignedTopic = self.topicsByLocation[i][j]
-                if word not in self.wordTopicCounts:
-                    self.wordTopicCounts[word] = [0] * self.numTopics
-                self.wordTopicCounts[word][assignedTopic] += 1
+        for i in range(len(self.wordLocationArray)):
+            for j in range(len(self.wordLocationArray[i])):
+                word = self.wordLocationArray[i][j]
+                assignedTopic = self.topicAssignmentByLoc[i][j]
+                if word not in self.wordDistributionAcrossTopics:
+                    self.wordDistributionAcrossTopics[word] = [0] * self.numTopics
+                self.wordDistributionAcrossTopics[word][assignedTopic] += 1
         
         #create docList
-        for i in range(len(self.wordsByLocation)):
-            self.docList.append([])
+        for i in range(len(self.wordLocationArray)):
+            self.docTopicalWordDist.append([])
             for j in range(self.numTopics):
-                self.docList[i].append(0)
+                self.docTopicalWordDist[i].append(0)
         #i indexes by document in topicsbylocation, then the topic number becomes an index
-        for i in range(len(self.topicsByLocation)):
-            for topic in self.topicsByLocation[i]: 
-                self.docList[i][topic] += 1
+        for i in range(len(self.topicAssignmentByLoc)):
+            for topic in self.topicAssignmentByLoc[i]:
+                self.docTopicalWordDist[i][topic] += 1
                 
         #loading topicList and topicWordCounts
-        self.topicWordCounts = [0] * self.numTopics
-        self.topicList = [{} for _ in range(self.numTopics)]
-        for word in self.wordTopicCounts:
-            wordTopics = self.wordTopicCounts[word]
+        self.topicTotalWordCount = [0] * self.numTopics
+        self.topicWordInstancesDict = [{} for _ in range(self.numTopics)]
+        for word in self.wordDistributionAcrossTopics:
+            wordTopics = self.wordDistributionAcrossTopics[word]
             for i in range(self.numTopics):
-                self.topicList[i][word] = wordTopics[i]
-                self.topicWordCounts[i] += wordTopics[i]
+                self.topicWordInstancesDict[i][word] = wordTopics[i]
+                self.topicTotalWordCount[i] += wordTopics[i]
                 #if wordTopics[i] != 0:
                 #    self.topicWordCounts[i] += 1
 
@@ -177,44 +177,44 @@ class CorpusData:
 
     # TODO: print to file instead of to command line
     def printTopics(self):
-        for topic in self.topicList:
-            print("Topic " + str(self.topicList.index(topic) + 1) + ": "),
+        for topic in self.topicWordInstancesDict:
+            print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
     def encodeData(self, readfile, encodefile):
-        for doc in self.topicsByLocation:
+        for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
              doc[location] = int(doc[location])
         dumpDict = {'dataset': readfile,
-                    'wordsByLocation': self.wordsByLocation,
-                    'topicsByLocation': self.topicsByLocation,
-                    'wordCounts': self.wordCounts,
-                    'wordTopicCounts': self.wordTopicCounts,
-                    'topicList': self.topicList,
-                    'topicWordCounts': self.topicWordCounts,
-                    'docList': self.docList,
-                    'docWordCounts': self.docWordCounts}
+                    'wordsByLocation': self.wordLocationArray,
+                    'topicsByLocation': self.topicAssignmentByLoc,
+                    'wordCounts': self.uniqueWordDict,
+                    'wordTopicCounts': self.wordDistributionAcrossTopics,
+                    'topicList': self.topicWordInstancesDict,
+                    'topicWordCounts': self.topicTotalWordCount,
+                    'docList': self.docTopicalWordDist,
+                    'docWordCounts': self.docTotalWordCounts}
         with open(encodefile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
 
     def removeWordFromDataStructures(self, word, doc, oldTopic):
-        wordString = self.wordsByLocation[doc][word]
-        self.topicList[oldTopic][wordString] -= 1
-        self.topicWordCounts[oldTopic] -= 1
-        self.docList[doc][oldTopic] -= 1
+        wordString = self.wordLocationArray[doc][word]
+        self.topicWordInstancesDict[oldTopic][wordString] -= 1
+        self.topicTotalWordCount[oldTopic] -= 1
+        self.docTopicalWordDist[doc][oldTopic] -= 1
 
     def addWordToDataStructures(self, word, doc, newTopic):
-        wordString = self.wordsByLocation[doc][word]
-        self.topicsByLocation[doc][word] = newTopic
-        self.topicList[newTopic][wordString] += 1
-        self.topicWordCounts[newTopic] += 1
-        self.docList[doc][newTopic] += 1
+        wordString = self.wordLocationArray[doc][word]
+        self.topicAssignmentByLoc[doc][word] = newTopic
+        self.topicWordInstancesDict[newTopic][wordString] += 1
+        self.topicTotalWordCount[newTopic] += 1
+        self.docTopicalWordDist[doc][newTopic] += 1
     
     #method to remove words that appear in <5% of docs or >90% of docs
     def removeStopWords(self):
         #records the number of documents the word appears in.
-        wordDocCounts = dict.fromkeys(self.wordCounts, 0)
-        for doc in self.wordsByLocation:
+        wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
+        for doc in self.wordLocationArray:
             wordInDoc = []
             for word in doc:
                 if word not in wordInDoc:
@@ -230,8 +230,8 @@ class CorpusData:
         #TODO: actually remove the words
         under5PercentWords = []
         over90PercentWords = []
-        lowerBound = math.ceil(len(self.wordsByLocation) * 0.05)
-        upperBound = math.ceil(len(self.wordsByLocation) * 0.90)
+        lowerBound = math.ceil(len(self.wordLocationArray) * 0.05)
+        upperBound = math.ceil(len(self.wordLocationArray) * 0.90)
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound:
                 under5PercentWords.append(word)
@@ -245,16 +245,16 @@ class CorpusData:
     
     ''' LDA methods for recalculating the probabilities of each word by topic '''
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
-        word = self.wordsByLocation[docCoord][wordCoord]
+        word = self.wordLocationArray[docCoord][wordCoord]
         newWordProbs = []
-        for i in range(len(self.topicList)):
+        for i in range(len(self.topicWordInstancesDict)):
             # pwt = P(w|t)
-            topicDict = self.topicList[i]
+            topicDict = self.topicWordInstancesDict[i]
             wordCount = topicDict[word]
-            pwt = (wordCount + alpha) / (self.topicWordCounts[i] + alpha)
+            pwt = (wordCount + alpha) / (self.topicTotalWordCount[i] + alpha)
             # ptd = P(t|d)
-            wordsInTopicInDoc = self.docList[docCoord][i]
-            ptd = (wordsInTopicInDoc + beta) / (self.docWordCounts[docCoord] + beta)
+            wordsInTopicInDoc = self.docTopicalWordDist[docCoord][i]
+            ptd = (wordsInTopicInDoc + beta) / (self.docTotalWordCounts[docCoord] + beta)
             # ptw = P(t|w)
             ptw = pwt * ptd
             newWordProbs.append(ptw)
@@ -270,7 +270,7 @@ class CorpusData:
 
     def output(self):
         loadData = []
-        largestTopic = max(self.topicWordCounts)
+        largestTopic = max(self.topicTotalWordCount)
         for i in range(largestTopic+2):
             new = []
             for j in range(self.numTopics*3):
@@ -288,8 +288,8 @@ class CorpusData:
 
         for i in range(self.numTopics):
             topicAsList = []
-            for k,v in self.topicList[i].items():
-                percent = (v / self.topicWordCounts[i])*100
+            for k,v in self.topicWordInstancesDict[i].items():
+                percent = (v / self.topicTotalWordCount[i]) * 100
                 topicAsList.append([k,v,percent])
             #TODO: sort topicAsList
             for j in range(len(topicAsList)):
@@ -321,6 +321,8 @@ def main():
         beta = float(sys.argv[6])
         runLDA(iterations, readfile, encodefile, topics, alpha, beta)
     else:
+        print(sys.argv[1])
+
         iterations = int(sys.argv[1])
         readfile = sys.argv[2]
         topics = int(sys.argv[3])

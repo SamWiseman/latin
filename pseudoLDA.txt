@@ -5,16 +5,15 @@ Location Information (2D arrays, inner array for words, outer array for docs)
     topicAssignmentByLoc = [[tag, tag, tag], [tag, tag, tag]]
 
 Word Information (indices line up)
-    uniqueWordList = [word, word, word] (not updated after init)
+    uniqueWordDict = {word:count, word:count, word:count} (not updated after init)
     wordDistributionAcrossTopics = [[count,count], [count,count]] (index of count in inner array corresponds to topic)
-    numberTotalOccurrences = [int, int, int] (not updated after init)
 
 Topic Information (indices line up)
     topicWordInstancesDict = [{word:count, word:count}, {word:count,word:count}]
     topicTotalWordCount = [#wordsInTopic, #wordsInTopic]
 
 Document Information (indices line up)
-    docTopicalWordCounts = [[#docWords, #docWords], [#docWords, #docWords]] (outer array is list of docs, inner array is #docwords in each topic)
+    docTopicalWordDist = [[#docWords, #docWords], [#docWords, #docWords]] (outer array is list of docs, inner array is #docwords in each topic)
     docTotalWordCounts = [#wordsInDoc, #wordsInDoc] (not updated after init)
 
 
