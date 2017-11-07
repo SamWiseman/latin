@@ -126,13 +126,17 @@ class CorpusData:
         for doc in docSet:
             self.docWordCounts.append(docColumn.count(doc))
         
-        #build topicsByLocation by putting a random number in a slot for every word
+        #build topicsByLocation by going through each topic in a loop
         for i in range(len(self.wordsByLocation)):
-            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))    
+            self.topicsByLocation.append([0] * len(self.wordsByLocation[i]))
+        chosenTopic = 0    
         for i in range(len(self.wordsByLocation)):
             for j in range(len(self.wordsByLocation[i])):
-                randTopic = random.randrange(self.numTopics)
-                self.topicsByLocation[i][j] = randTopic
+                chosenTopic += 1
+                chosenTopic %= self.numTopics
+                #randTopic = random.randrange(self.numTopics)
+                #self.topicsByLocation[i][j] = randTopic
+                self.topicsByLocation[i][j] = chosenTopic
           
         #create wordTopicCounts using the information in topicsByLocation       
         for i in range(len(self.wordsByLocation)):
