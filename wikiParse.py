@@ -22,7 +22,7 @@ def main():
             page = requests.get("https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&pageid=" + pageId)
             pageHtml = page.json()["parse"]["text"]["*"]
             #parse out html tags and nonletters
-            for word in re.compile(r'<.*?>|[^a-zA-Z ]').sub('', pageHtml).encode('ascii', 'ignore').split():
+            for word in re.compile(r'<.*?>|[^a-zA-Z]').sub(' ', pageHtml).encode('ascii', 'ignore').split():
                 csvwriter.writerow([word.lower(), pageTitle])
     
 
