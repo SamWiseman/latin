@@ -110,6 +110,29 @@ class CorpusData:
                      
         #load word counts into dictionary
         self.uniqueWordDict = Counter(wordsColumn)
+        
+        #removes stopwords (above 90%, below 5%)
+        wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
+        for doc in self.wordLocationArray:
+            wordInDoc = []
+            for word in doc:
+                if word not in wordInDoc:
+                    wordInDoc.append(word)
+                    wordDocCounts[word] += 1
+        
+        lowerBound = math.ceil(len(self.wordLocationArray) * 0.05)
+        upperBound = math.ceil(len(self.wordLocationArray) * 0.90)
+        stopwords = []
+        #create an array of stopwords
+        for word in wordDocCounts:
+            if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
+                stopwords.append(word)
+        #remove all stopwords from wordLocationArray and uniqueWordDict
+        for docWords in self.wordLocationArray:
+            docWords[:] = [w for w in docWords if w not in stopwords]
+        for w in stopwords:
+            self.uniqueWordDict.pop(w, None)
+        
         '''
         sortedWords = sorted(wordsColumn)
         count = 0
@@ -210,39 +233,6 @@ class CorpusData:
         self.topicTotalWordCount[newTopic] += 1
         self.docTopicalWordDist[doc][newTopic] += 1
     
-    #method to remove words that appear in <5% of docs or >90% of docs
-    def removeStopWords(self):
-        #records the number of documents the word appears in.
-        wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
-        for doc in self.wordLocationArray:
-            wordInDoc = []
-            for word in doc:
-                if word not in wordInDoc:
-                    wordInDoc.append(word)
-                    
-                    #this is breaking on the word "zwiep"
-                    #probably lost the last word
-                    try:
-                        wordDocCounts[word] += 1
-                    except:
-                        print("couldn't print " + word)
-        
-        #TODO: actually remove the words
-        under5PercentWords = []
-        over90PercentWords = []
-        lowerBound = math.ceil(len(self.wordLocationArray) * 0.05)
-        upperBound = math.ceil(len(self.wordLocationArray) * 0.90)
-        for word in wordDocCounts:
-            if wordDocCounts[word] <= lowerBound:
-                under5PercentWords.append(word)
-            elif wordDocCounts[word] >= upperBound:
-                over90PercentWords.append(word)
-            else:
-                print(word)
-        #print(under5PercentWords)
-        print(lowerBound)
-        print(upperBound)
-    
     ''' LDA methods for recalculating the probabilities of each word by topic '''
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
         word = self.wordLocationArray[docCoord][wordCoord]
@@ -301,12 +291,6 @@ class CorpusData:
             filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for row in loadData:
                 filewriter.writerow(row)
-
-#testing the stopwords function, should be removed later
-def testLoad():
-    corpus = CorpusData("wiki.csv", 5)
-    corpus.loadData()
-    corpus.removeStopWords()
 
 #tiny test function
 def main():
