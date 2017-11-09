@@ -41,7 +41,7 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
             if topic[key] == 0:
                 del topic[key]
     corpus.printTopics()
-    corpus.output()
+    corpus.outputAsCSV()
 
 class CorpusData:
     # Location Information
@@ -258,7 +258,7 @@ class CorpusData:
                 normalizedProbabilities.append(probability/rawsum)
         return normalizedProbabilities
 
-    def output(self):
+    def outputAsCSV(self):
         loadData = []
         largestTopic = max(self.topicTotalWordCount)
         for i in range(largestTopic+2):
