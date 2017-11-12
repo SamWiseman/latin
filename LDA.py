@@ -288,9 +288,29 @@ class CorpusData:
                 loadData[j + 2][3 * i + 2] = topicAsList[j][2]
 
         with open('output.csv', 'w', newline='') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter = csv.writer(csvfile, delimiter=',')
             for row in loadData:
                 filewriter.writerow(row)
+
+def txtToCsv(fileName, splitString):
+    fileString = open(fileName, 'r').read().lower()
+    if splitString == None:
+        print('potaato')
+        #TODO: find a way to split the file into an arbitrarily chosen number of documents
+    else: 
+        docStringsArray = fileString.split(splitString)
+        for i in range(len(docStringsArray)):
+            #TODO: Handle all escape characters
+            docStringsArray[i] = docStringsArray[i].replace("\n", " ")
+        with open('input.csv', 'w', newline='') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',')
+            currentDoc = 1
+            for docString in docStringsArray:
+                wordsArray = docString.split(' ')
+                for word in wordsArray:
+                    if word != '':
+                        filewriter.writerow([word,str(currentDoc)])
+                currentDoc += 1
 
 #tiny test function
 def main():
@@ -298,20 +318,26 @@ def main():
         print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
     elif len(sys.argv) == 7:
         iterations = int(sys.argv[1])
-        readfile = sys.argv[2]
+        readFile = sys.argv[2]
         topics = int(sys.argv[3])
-        encodefile = sys.argv[4]
+        encodeFile = sys.argv[4]
         alpha = float(sys.argv[5])
         beta = float(sys.argv[6])
-        runLDA(iterations, readfile, encodefile, topics, alpha, beta)
+        if readFile[-3:] == 'txt':
+            txtToCsv(readFile, '\n\n\n')
+            readFile = 'input.csv'
+        runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
         print(sys.argv[1])
 
         iterations = int(sys.argv[1])
-        readfile = sys.argv[2]
+        readFile = sys.argv[2]
         topics = int(sys.argv[3])
-        encodefile = sys.argv[4]
-        runLDA(iterations, readfile, encodefile, topics, 0.8, 0.8)
+        encodeFile = sys.argv[4]
+        if readFile[-3:] == 'txt':
+            txtToCsv(readFile, '\n\n\n')
+            readFile = 'input.csv'
+        runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
 
 if __name__ == "__main__":
     main()
