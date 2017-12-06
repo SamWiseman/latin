@@ -8,6 +8,7 @@ from collections import OrderedDict, Counter
 from numpy.random import choice
 import time
 import math
+from operator import itemgetter
 
 """
 runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -281,7 +282,7 @@ class CorpusData:
             for k,v in self.topicWordInstancesDict[i].items():
                 percent = (v / self.topicTotalWordCount[i]) * 100
                 topicAsList.append([k,v,percent])
-            #TODO: sort topicAsList
+            topicAsList.sort(key=itemgetter(1), reverse=True)
             for j in range(len(topicAsList)):
                 loadData[j + 2][3 * i] = topicAsList[j][0]
                 loadData[j + 2][3 * i + 1] = topicAsList[j][1]
