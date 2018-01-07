@@ -308,6 +308,7 @@ def txtToCsv(fileName, splitString):
             for docString in docStringsArray:
                 wordsArray = docString.split(' ')
                 for word in wordsArray:
+                    word = word.strip('.,!?"():;\n\t')
                     if word != '':
                         filewriter.writerow([word,str(currentDoc)])
                 currentDoc += 1
