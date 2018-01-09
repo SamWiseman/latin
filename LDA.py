@@ -22,7 +22,7 @@ for each iteration and printing at the end.
 """
 def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
     corpus = CorpusData(readfile, topics)
-    corpus.loadData()
+    corpus.loadData(0.05, 0.85, ["the"], ["his", "he", "her", "she"])
     for i in range(0, iterations):
         #getting start time to measure runtime
         #delete the line below for the final release!
@@ -90,8 +90,13 @@ class CorpusData:
         self.file = file
         self.numTopics = numTopics
     
-    #reads the csv and loads the appropriate data structures. may be refactored by struct  
-    def loadData(self):
+    #reads the csv and loads the appropriate data structures. may be refactored by struct
+    #stopLowerBound and stopUpperBound are floats between 0 and 1
+    #they represent what proportion of documents a word can appear in without getting filtered out
+    #stopWhitelist and stopBlacklist are two lists of strings
+    #strings in stopWhitelist will not be filtered out even if they are outside the document bounds
+    #strings in stopBlacklist will be filtered out even if they are inside the document bounds
+    def loadData(self, stopLowerBound, stopUpperBound, stopWhitelist, stopBlacklist):
         with open(self.file, 'r') as csvfile:
             reader = csv.reader(csvfile)
             wordsColumn = []
@@ -125,13 +130,18 @@ class CorpusData:
                     wordInDoc.append(word)
                     wordDocCounts[word] += 1
         
-        lowerBound = math.ceil(len(self.wordLocationArray) * 0.05)
-        upperBound = math.ceil(len(self.wordLocationArray) * 0.90)
+        lowerBound = math.ceil(len(self.wordLocationArray) * stopLowerBound)
+        upperBound = math.ceil(len(self.wordLocationArray) * stopUpperBound)
         stopwords = []
         #create an array of stopwords
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
                 stopwords.append(word)
+        for bannedWord in stopBlacklist:
+            if bannedWord not in stopwords:
+                stopwords.append(bannedWord)
+        for allowedWord in stopWhitelist:
+            stopwords.remove(allowedWord)
         #remove all stopwords from wordLocationArray and uniqueWordDict
         for docWords in self.wordLocationArray:
             docWords[:] = [w for w in docWords if w not in stopwords]
