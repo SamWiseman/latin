@@ -1,9 +1,14 @@
 import numpy as np
 
+#
 def compareTopicSize(LDAModel):
     with open('eval.txt', 'a') as eval:
-        eval.write("Topic size variance: ",  np.var(LDAModel.topicalWordCount), "\n")
-)
+        print(LDAModel.docTopicalWordDist)
+        for i in range(len(LDAModel.docTopicalWordDist)):
+            print(np.var(list(map(lambda x: x/sum(LDAModel.docTopicalWordDist[i])), LDAModel.docTopicalWordDist)))
+            eval.write("Topic size variance: " + np.var(list(map(lambda x: x/sum(LDAModel.docTopicalWordDist[i]), LDAModel.docTopicalWordDist[i]))) + "\n")
+            eval.write("\n")
+
 
 def compareDistributions(LDAModel):
     wholeCorpList = []
@@ -13,12 +18,13 @@ def compareDistributions(LDAModel):
     totalWordsTopic = sum(wholeCorpList)
     wholeCorpList = list(map(lambda x: x/totalWordsTopic, wholeCorpList))
     with open('eval.txt', 'a') as eval:
-        eval.write("Whole corpus distribution: ", wholeCorpList)
+        eval.write("Whole corpus distribution: "+ str(wholeCorpList))
         i = 0
         for document in LDAModel.docTopicalWordDist:
             document = list(map(lambda x: x/sum(document), document))
-            eval.write("Document "+i+" distribution: ", document, "\n")
+            eval.write("Document " + i + " distribution: " + str(document) + "\n")
             i += 1
+        eval.write("\n")
 
 
 def topicSpecificity(LDAModel):
@@ -47,5 +53,7 @@ def topicSpecificity(LDAModel):
 
     with open('eval.txt', 'a') as eval:
         for t in range(len(LDAModel.topicList)):
-            eval.write("Topic "+t+ ": ", topicPercents[t] * avgPercentOfDoc[t], "\n")
+            eval.write("Topic "+str(t)+ ": "+ topicPercents[t] * avgPercentOfDoc[t]+ "\n")
+        eval.write("\n")
+
 

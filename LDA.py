@@ -9,6 +9,7 @@ from numpy.random import choice
 import time
 import math
 from operator import itemgetter
+import evaluation
 
 """
 runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -43,6 +44,9 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
                 del topic[key]
     corpus.printTopics()
     corpus.outputAsCSV()
+    # evaluation.compareDistributions(corpus)
+    # evaluation.compareTopicSize(corpus)
+    # evaluation.topicSpecificity(corpus)
 
 class CorpusData:
     # Location Information
