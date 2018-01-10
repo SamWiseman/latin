@@ -300,8 +300,13 @@ class CorpusData:
 
         with open('output.csv', 'w', newline='') as csvfile:
             filewriter = csv.writer(csvfile, delimiter=',')
+            count = 0
             for row in loadData:
-                filewriter.writerow(row)
+                if count < 200:
+                    filewriter.writerow(row)
+                    count += 1
+                else:
+                    break
 
 def txtToCsv(fileName, splitString):
     fileString = open(fileName, 'r').read().lower()
