@@ -21,7 +21,7 @@ for each iteration and printing at the end.
 """
 def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
     corpus = CorpusData(readfile, topics)
-    corpus.loadData(0.05, 0.85, ["the"], ["his", "he", "her", "she"])
+    corpus.loadData(0.05, 0.85, ["david"], ["his", "he", "her", "she", "the"])
     for i in range(0, iterations):
         #getting start time to measure runtime
         #delete the line below for the final release!
@@ -137,7 +137,8 @@ class CorpusData:
             if bannedWord not in stopwords:
                 stopwords.append(bannedWord)
         for allowedWord in stopWhitelist:
-            stopwords.remove(allowedWord)
+            if allowedWord in stopwords:
+                stopwords.remove(allowedWord)
         #remove all stopwords from wordLocationArray and uniqueWordDict
         for docWords in self.wordLocationArray:
             docWords[:] = [w for w in docWords if w not in stopwords]
