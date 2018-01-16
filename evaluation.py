@@ -41,7 +41,7 @@ def topicSpecificity(LDAModel):
 
     topicPercents = list(map(lambda x: x/len(LDAModel.docTopicalWordDist), topicPercents))
 
-    
+
     avgPercentOfDoc = []
     for m in range(len(LDAModel.topicTotalWordCount)):
         docPercents = []

@@ -46,9 +46,9 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
                 del topic[key]
     corpus.printTopics()
     corpus.outputAsCSV()
-    evaluation.compareDistributions(corpus)
-    evaluation.compareTopicSize(corpus)
-    evaluation.topicSpecificity(corpus)
+    # evaluation.compareDistributions(corpus)
+    # evaluation.compareTopicSize(corpus)
+    # evaluation.topicSpecificity(corpus)
 
 
 class CorpusData:
@@ -147,7 +147,9 @@ class CorpusData:
         for allowedWord in stopWhitelist:
             if allowedWord in stopwords:
                 stopwords.remove(allowedWord)
+
         # remove all stopwords from wordLocationArray and uniqueWordDict
+
         for docWords in self.wordLocationArray:
             docWords[:] = [w for w in docWords if w not in stopwords]
         for w in stopwords:
