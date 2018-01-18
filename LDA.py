@@ -24,7 +24,7 @@ for each iteration and printing at the end.
 
 def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
     corpus = CorpusData(readfile, topics)
-    corpus.loadData(0.05, 0.85, ["david"], ["his", "he", "her", "she", "the"])
+    corpus.loadData(0.005, 0.85, ["david"], ["his", "he", "her", "she", "the"])
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
