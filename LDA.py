@@ -38,7 +38,7 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
-    corpus.encodeData(readfile, outputname)
+    corpus.encodeData(readfile, topics, iterations, alpha, beta, outputname)
 
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
     for topic in corpus.topicWordInstancesDict:
@@ -227,11 +227,15 @@ class CorpusData:
             print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
-    def encodeData(self, readfile, outputname):
+    def encodeData(self, readfile, topics, iterations, alpha, beta, outputname):
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
         dumpDict = {'dataset': readfile,
+                    'topics': topics,
+                    'iterations': iterations,
+                    'alpha': alpha,
+                    'beta': beta,
                     'wordsByLocation': self.wordLocationArray,
                     'topicsByLocation': self.topicAssignmentByLoc,
                     'wordCounts': self.uniqueWordDict,
