@@ -10,6 +10,7 @@ import time
 import math
 import evaluation
 from operator import itemgetter
+import copy
 
 """
 runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -24,7 +25,7 @@ for each iteration and printing at the end.
 
 def runLDA(iterations, readfile, outputname, topics, alpha, beta):
     corpus = CorpusData(readfile, topics)
-    corpus.loadData(0.5, 0.9, [], [])
+    corpus.loadData(0.2, 0.9, [], [])
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -50,6 +51,7 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
     # evaluation.compareDistributions(corpus)
     # evaluation.compareTopicSize(corpus)
     # evaluation.topicSpecificity(corpus)
+    corpus.createAnnoTextDataStructure()
 
 
 class CorpusData:
@@ -59,6 +61,12 @@ class CorpusData:
     # 2d array: outer array contains documents which are arrays of topics which exactly match the words
     # in the previous array
     topicAssignmentByLoc = []
+
+    #data structures used for creating the annotated text
+    #wordLocArrayStatic is wordLocationArray with stopwords included
+    #topicAssignByLocStatic is topicAssignmentByLoc with stopwords included
+    wordLocArrayStatic = []
+    topicAssignByLocStatic = []
 
     # Word Information
     # dictionary mapping unique words to the number of times they appear
@@ -126,6 +134,7 @@ class CorpusData:
 
                 # load word counts into dictionary
         self.uniqueWordDict = Counter(wordsColumn)
+        self.wordLocArrayStatic = copy.deepcopy(self.wordLocationArray)
 
         # removes stopwords (above 90%, below 5%)
         wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
@@ -325,6 +334,23 @@ class CorpusData:
                     count += 1
                 else:
                     break
+
+    #create versions of the data structures that include stopwords in order to create the annotated text
+    def createAnnoTextDataStructure(self):
+        stopwordTopic = 0
+        for document in range(len(self.wordLocationArray)):
+            docTopicList = []
+            counter = 0
+            for word in range(len(self.wordLocArrayStatic[document])):
+                if len(self.wordLocationArray[document]) > counter:
+                    if self.wordLocArrayStatic[document][word] == self.wordLocationArray[document][counter]:
+                        docTopicList.append(self.topicAssignmentByLoc[document][counter])
+                        counter += 1
+                    else:
+                        docTopicList.append(stopwordTopic)
+                else:
+                    docTopicList.append(stopwordTopic)
+            self.topicAssignByLocStatic.append(docTopicList)
 
 
 def txtToCsv(fileName, splitString):
