@@ -355,7 +355,6 @@ class CorpusData:
 
 def txtToCsv(fileName, splitString):
     fileString = open(fileName, 'r').read().lower()
-<<<<<<< HEAD
     wordList = fileString.split()
     if splitString[:3] == 'num':
         numDocs = int(splitString[3:])
@@ -367,11 +366,13 @@ def txtToCsv(fileName, splitString):
         docLength = int(splitString[6:])
         docStringsArray = getDocsOfLength(docLength, wordList)
     else: 
-        docStringsArray = fileString.split(wordList)
+        docStringsArray = fileString.split(splitString)
+        print(docStringsArray)
     for i in range(len(docStringsArray)):
         #TODO: Handle all escape characters
         docStringsArray[i] = docStringsArray[i].replace("\n", " ")
-    with open('input.csv', 'w', newline='') as csvfile:
+    csvfilename = fileName[:-4]+".csv"
+    with open(csvfilename, 'w', newline='') as csvfile:
         filewriter = csv.writer(csvfile, delimiter=',')
         currentDoc = 1
         for docString in docStringsArray:
@@ -391,64 +392,53 @@ def getDocsOfLength(docLen, wordList):
         wordList = wordList[docLen:]
         docStringsArray.append(doc)
     return docStringsArray
-=======
-    if splitString is None:
-        print('potaato')
-        # TODO: find a way to split the file into an arbitrarily chosen number of documents
+
+def makeChunkString(chunkType, chunkParam):
+    chunkString = ''
+    if chunkType == 'num' or chunkType == 'length':
+        chunkString += chunkType
+        chunkString += chunkParam
+    elif chunkType == 'string':
+        chunkString = chunkParam
+        print(chunkString)
     else:
-        docStringsArray = fileString.split(splitString)
-        for i in range(len(docStringsArray)):
-            # TODO: Handle all escape characters
-            docStringsArray[i] = docStringsArray[i].replace("\n", " ")
-        csvfilename = fileName[:-4]+".csv"
-        with open(csvfilename, 'w', newline='') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',')
-            currentDoc = 1
-            for docString in docStringsArray:
-                wordsArray = docString.split(' ')
-                for word in wordsArray:
-                    word = word.strip('.,!?"():;\n\t')
-                    if word != '':
-                        filewriter.writerow([word, str(currentDoc)])
-                currentDoc += 1
->>>>>>> cde96e723e4b990da74b853d67f35df861d96d83
+        print("Invalid chunkType given.\n")
+        exit()
+    return chunkString
 
 
 # tiny test function
+#chunking: chunkType can be "num", "length", or "string"
+#chunkParam can be number of docs, length of docs, or splitstring respectively
 def main():
-    if len(sys.argv) != 5 and len(sys.argv) != 7:
+    if len(sys.argv) != 7 and len(sys.argv) != 9:
         print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
-    elif len(sys.argv) == 7:
+    elif len(sys.argv) == 9:
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
         topics = int(sys.argv[3])
         encodeFile = sys.argv[4]
-        alpha = float(sys.argv[5])
-        beta = float(sys.argv[6])
+        chunkType = sys.argv[5]
+        chunkParam = sys.argv[6]
+        alpha = float(sys.argv[7])
+        beta = float(sys.argv[8])
+        chunkString = makeChunkString(chunkType, chunkParam)
         if readFile[-3:] == 'txt':
-<<<<<<< HEAD
-            txtToCsv(readFile, 'num75')
-            readFile = 'input.csv'
-=======
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, chunkString)
             readFile = readFile[:-4]+".csv"
->>>>>>> cde96e723e4b990da74b853d67f35df861d96d83
         runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
         print(sys.argv[1])
-
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
         topics = int(sys.argv[3])
         encodeFile = sys.argv[4]
+        chunkType = sys.argv[5]
+        chunkParam = sys.argv[6]
+        chunkString = makeChunkString(chunkType, chunkParam)
         if readFile[-3:] == 'txt':
-<<<<<<< HEAD
-            txtToCsv(readFile, 'num75')
-            readFile = 'input.csv'
-=======
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, chunkString)
             readFile = readFile[:-4]+".csv"
->>>>>>> cde96e723e4b990da74b853d67f35df861d96d83
         runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
 
 
