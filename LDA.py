@@ -295,24 +295,41 @@ class CorpusData:
 
 def txtToCsv(fileName, splitString):
     fileString = open(fileName, 'r').read().lower()
-    if splitString == None:
-        print('potaato')
+    wordList = fileString.split()
+    if splitString[:3] == 'num':
+        numDocs = int(splitString[3:])
+        docLength = len(wordList) // numDocs
+        docStringsArray = getDocsOfLength(docLength, wordList)
         #TODO: find a way to split the file into an arbitrarily chosen number of documents
+    #to have a fixed length document, input "lengthXX" for documents of length XX
+    elif splitString[:6] == 'length':
+        docLength = int(splitString[6:])
+        docStringsArray = getDocsOfLength(docLength, wordList)
     else: 
-        docStringsArray = fileString.split(splitString)
-        for i in range(len(docStringsArray)):
-            #TODO: Handle all escape characters
-            docStringsArray[i] = docStringsArray[i].replace("\n", " ")
-        with open('input.csv', 'w', newline='') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',')
-            currentDoc = 1
-            for docString in docStringsArray:
-                wordsArray = docString.split(' ')
-                for word in wordsArray:
-                    word = word.strip('.,!?"():;\n\t')
-                    if word != '':
-                        filewriter.writerow([word,str(currentDoc)])
-                currentDoc += 1
+        docStringsArray = fileString.split(wordList)
+    for i in range(len(docStringsArray)):
+        #TODO: Handle all escape characters
+        docStringsArray[i] = docStringsArray[i].replace("\n", " ")
+    with open('input.csv', 'w', newline='') as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',')
+        currentDoc = 1
+        for docString in docStringsArray:
+            wordsArray = docString.split(' ')
+            for word in wordsArray:
+                word = word.strip('.,!?"():;\n\t')
+                if word != '':
+                    filewriter.writerow([word,str(currentDoc)])
+            currentDoc += 1
+
+def getDocsOfLength(docLen, wordList):
+    print("Length of each document: " + str(docLen))
+    docStringsArray = []
+    #put (length) words into a string
+    while wordList:
+        doc = " ".join(str(wordList[i]) for i in range(min(docLen, len(wordList))))
+        wordList = wordList[docLen:]
+        docStringsArray.append(doc)
+    return docStringsArray
 
 #tiny test function
 def main():
@@ -326,7 +343,7 @@ def main():
         alpha = float(sys.argv[5])
         beta = float(sys.argv[6])
         if readFile[-3:] == 'txt':
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, 'num75')
             readFile = 'input.csv'
         runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
@@ -337,7 +354,7 @@ def main():
         topics = int(sys.argv[3])
         encodeFile = sys.argv[4]
         if readFile[-3:] == 'txt':
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, 'num75')
             readFile = 'input.csv'
         runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
 
