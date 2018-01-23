@@ -240,7 +240,7 @@ class CorpusData:
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
-        dumpDict = {'dataset': readfile,
+        dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
                     'alpha': alpha,
@@ -414,7 +414,7 @@ def makeChunkString(chunkType, chunkParam):
 #chunkParam can be number of docs, length of docs, or splitstring respectively
 def main():
     if len(sys.argv) != 7 and len(sys.argv) != 9:
-        print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
+        print("Usage: LDA.py iterations readfile topics encodefile chunktype chunkparam (optional: alpha=0.8 beta=0.8)")
     elif len(sys.argv) == 9:
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
