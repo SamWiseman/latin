@@ -246,7 +246,9 @@ class CorpusData:
                     'alpha': alpha,
                     'beta': beta,
                     'wordsByLocation': self.wordLocationArray,
+                    'wordsByLocationWithStopwords': self.wordLocArrayStatic,
                     'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
                     'wordCounts': self.uniqueWordDict,
                     'wordTopicCounts': self.wordDistributionAcrossTopics,
                     'topicList': self.topicWordInstancesDict,
@@ -337,7 +339,7 @@ class CorpusData:
 
     #create versions of the data structures that include stopwords in order to create the annotated text
     def createAnnoTextDataStructure(self):
-        stopwordTopic = 0
+        stopwordTopic = -1
         for document in range(len(self.wordLocationArray)):
             docTopicList = []
             counter = 0
