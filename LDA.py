@@ -367,7 +367,7 @@ def txtToCsv(fileName, splitString):
         docStringsArray = getDocsOfLength(docLength, wordList)
     else: 
         docStringsArray = fileString.split(splitString)
-        print(docStringsArray)
+    print("Number of documents: " + str(len(docStringsArray)))
     for i in range(len(docStringsArray)):
         #TODO: Handle all escape characters
         docStringsArray[i] = docStringsArray[i].replace("\n", " ")
@@ -386,7 +386,6 @@ def txtToCsv(fileName, splitString):
 def getDocsOfLength(docLen, wordList):
     print("Length of each document: " + str(docLen))
     docStringsArray = []
-    #put (length) words into a string
     while wordList:
         doc = " ".join(str(wordList[i]) for i in range(min(docLen, len(wordList))))
         wordList = wordList[docLen:]
@@ -400,7 +399,6 @@ def makeChunkString(chunkType, chunkParam):
         chunkString += chunkParam
     elif chunkType == 'string':
         chunkString = chunkParam
-        print(chunkString)
     else:
         print("Invalid chunkType given.\n")
         exit()
@@ -412,7 +410,7 @@ def makeChunkString(chunkType, chunkParam):
 #chunkParam can be number of docs, length of docs, or splitstring respectively
 def main():
     if len(sys.argv) != 7 and len(sys.argv) != 9:
-        print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
+        print("Usage: LDA.py iterations readfile topics encodefile chunkType chunkParam (optional: alpha=0.8 beta=0.8)")
     elif len(sys.argv) == 9:
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
@@ -428,7 +426,7 @@ def main():
             readFile = readFile[:-4]+".csv"
         runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
-        print(sys.argv[1])
+        print("Iterations: " + sys.argv[1])
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
         topics = int(sys.argv[3])
