@@ -240,13 +240,15 @@ class CorpusData:
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
-        dumpDict = {'dataset': readfile,
+        dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
                     'alpha': alpha,
                     'beta': beta,
                     'wordsByLocation': self.wordLocationArray,
+                    'wordsByLocationWithStopwords': self.wordLocArrayStatic,
                     'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
                     'wordCounts': self.uniqueWordDict,
                     'wordTopicCounts': self.wordDistributionAcrossTopics,
                     'topicList': self.topicWordInstancesDict,
@@ -337,7 +339,7 @@ class CorpusData:
 
     #create versions of the data structures that include stopwords in order to create the annotated text
     def createAnnoTextDataStructure(self):
-        stopwordTopic = 0
+        stopwordTopic = -1
         for document in range(len(self.wordLocationArray)):
             docTopicList = []
             counter = 0
