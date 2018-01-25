@@ -39,6 +39,7 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
+    corpus.createAnnoTextDataStructure()
     corpus.encodeData(readfile, topics, iterations, alpha, beta, outputname)
 
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
@@ -51,7 +52,6 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
     # evaluation.compareDistributions(corpus)
     # evaluation.compareTopicSize(corpus)
     # evaluation.topicSpecificity(corpus)
-    corpus.createAnnoTextDataStructure()
 
 
 class CorpusData:
