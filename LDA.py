@@ -22,7 +22,7 @@ for each iteration and printing at the end.
 """
 
 
-def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
+def runLDA(iterations, readfile, outputname, topics, alpha, beta):
     corpus = CorpusData(readfile, topics)
     corpus.loadData(0.005, 0.85, ["david"], ["his", "he", "her", "she", "the"])
     for i in range(0, iterations):
@@ -36,16 +36,17 @@ def runLDA(iterations, readfile, encodefile, topics, alpha=0, beta=0):
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
-        # printing the elapsed time (real-time)
-        print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() - startTime))
-    corpus.encodeData(readfile, encodefile)
+        #printing the elapsed time (real-time)
+        print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
+    corpus.encodeData(readfile, outputname)
+
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
     for topic in corpus.topicWordInstancesDict:
         for key in list(topic.keys()):
             if topic[key] == 0:
                 del topic[key]
     corpus.printTopics()
-    corpus.outputAsCSV()
+    corpus.outputAsCSV(outputname)
     # evaluation.compareDistributions(corpus)
     # evaluation.compareTopicSize(corpus)
     # evaluation.topicSpecificity(corpus)
@@ -87,6 +88,7 @@ class CorpusData:
     file = ""
 
     # number of topics we want in the algorithm
+
     numTopics = 0
 
     # constructor
@@ -220,13 +222,12 @@ class CorpusData:
     in the topic.
     """
 
-    # TODO: print to file instead of to command line
     def printTopics(self):
         for topic in self.topicWordInstancesDict:
             print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
-    def encodeData(self, readfile, encodefile):
+    def encodeData(self, readfile, outputname):
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
@@ -239,7 +240,8 @@ class CorpusData:
                     'topicWordCounts': self.topicTotalWordCount,
                     'docList': self.docTopicalWordDist,
                     'docWordCounts': self.docTotalWordCounts}
-        with open(encodefile, 'w') as outfile:
+        outputfile = outputname+".json"
+        with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
 
     def removeWordFromDataStructures(self, word, doc, oldTopic):
@@ -281,7 +283,7 @@ class CorpusData:
                 normalizedProbabilities.append(probability / rawsum)
         return normalizedProbabilities
 
-    def outputAsCSV(self):
+    def outputAsCSV(self, outputname):
         loadData = []
         largestTopic = max(self.topicTotalWordCount)
         for i in range(largestTopic + 2):
@@ -309,8 +311,8 @@ class CorpusData:
                 loadData[j + 2][3 * i] = topicAsList[j][0]
                 loadData[j + 2][3 * i + 1] = topicAsList[j][1]
                 loadData[j + 2][3 * i + 2] = topicAsList[j][2]
-
-        with open('output.csv', 'w', newline='') as csvfile:
+        outputfile = outputname+".csv"
+        with open(outputfile, 'w', newline='') as csvfile:
             filewriter = csv.writer(csvfile, delimiter=',')
             count = 0
             for row in loadData:
@@ -323,7 +325,7 @@ class CorpusData:
 
 def txtToCsv(fileName, splitString):
     fileString = open(fileName, 'r').read().lower()
-    if splitString == None:
+    if splitString is None:
         print('potaato')
         # TODO: find a way to split the file into an arbitrarily chosen number of documents
     else:
@@ -331,7 +333,8 @@ def txtToCsv(fileName, splitString):
         for i in range(len(docStringsArray)):
             # TODO: Handle all escape characters
             docStringsArray[i] = docStringsArray[i].replace("\n", " ")
-        with open('input.csv', 'w', newline='') as csvfile:
+        csvfilename = fileName[:-4]+".csv"
+        with open(csvfilename, 'w', newline='') as csvfile:
             filewriter = csv.writer(csvfile, delimiter=',')
             currentDoc = 1
             for docString in docStringsArray:
@@ -356,7 +359,7 @@ def main():
         beta = float(sys.argv[6])
         if readFile[-3:] == 'txt':
             txtToCsv(readFile, '\n\n\n')
-            readFile = 'input.csv'
+            readFile = readFile[:-4]+".csv"
         runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
         print(sys.argv[1])
@@ -367,7 +370,7 @@ def main():
         encodeFile = sys.argv[4]
         if readFile[-3:] == 'txt':
             txtToCsv(readFile, '\n\n\n')
-            readFile = 'input.csv'
+            readFile = readFile[:-4]+".csv"
         runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
 
 
