@@ -351,11 +351,11 @@ def txtToCsv(fileName, splitString):
     if splitString[:3] == 'num':
         numDocs = int(splitString[3:])
         docLength = len(wordList) // numDocs
-        docStringsArray = getDocsOfLength(docLength, wordList)
+        docStringsArray = getDocsOfLength(docLength, wordList, True)
     #to have a fixed length document, input "lengthXX" for documents of length XX
     elif splitString[:6] == 'length':
         docLength = int(splitString[6:])
-        docStringsArray = getDocsOfLength(docLength, wordList)
+        docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
         docStringsArray = fileString.split(splitString)
     print("Number of documents: " + str(len(docStringsArray)))
@@ -374,13 +374,21 @@ def txtToCsv(fileName, splitString):
                     filewriter.writerow([word,str(currentDoc)])
             currentDoc += 1
 
-def getDocsOfLength(docLen, wordList):
+def getDocsOfLength(docLen, wordList, numCap):
     print("Length of each document: " + str(docLen))
     docStringsArray = []
     while wordList:
         doc = " ".join(str(wordList[i]) for i in range(min(docLen, len(wordList))))
         wordList = wordList[docLen:]
         docStringsArray.append(doc)
+    lastDocLen = len(docStringsArray[-1].split())
+    #if we have a fixed number of documents, we want to stick a "stub" document onto the last one
+    #otherwise, we will do it if it is under half the desired document length
+    if (numCap and lastDocLen < docLen) or \
+    (not numCap and lastDocLen < docLen // 2):
+        stubDoc = docStringsArray.pop()
+        appendString = " " + stubDoc
+        docStringsArray[-1] += appendString
     return docStringsArray
 
 def makeChunkString(chunkType, chunkParam):
