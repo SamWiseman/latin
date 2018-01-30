@@ -83,6 +83,8 @@ class CorpusData:
 
     numTopics = 0
 
+    stopwords = []
+
     # constructor
     def __init__(self, file, numTopics):
         self.file = file
@@ -134,23 +136,22 @@ class CorpusData:
             stopUpperBound = 2
         lowerBound = math.ceil(len(self.wordLocationArray) * stopLowerBound)
         upperBound = math.ceil(len(self.wordLocationArray) * stopUpperBound)
-        stopwords = []
         # create an array of stopwords
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
-                stopwords.append(word)
+                self.stopwords.append(word)
         for bannedWord in stopBlacklist:
-            if bannedWord not in stopwords:
-                stopwords.append(bannedWord)
+            if bannedWord not in self.stopwords:
+                self.stopwords.append(bannedWord)
         for allowedWord in stopWhitelist:
-            if allowedWord in stopwords:
-                stopwords.remove(allowedWord)
+            if allowedWord in self.stopwords:
+                self.stopwords.remove(allowedWord)
 
         # remove all stopwords from wordLocationArray and uniqueWordDict
 
         for docWords in self.wordLocationArray:
-            docWords[:] = [w for w in docWords if w not in stopwords]
-        for w in stopwords:
+            docWords[:] = [w for w in docWords if w not in self.stopwords]
+        for w in self.stopwords:
             self.uniqueWordDict.pop(w, None)
 
         '''
@@ -244,7 +245,8 @@ class CorpusData:
                     'topicList': self.topicWordInstancesDict,
                     'topicWordCounts': self.topicTotalWordCount,
                     'docList': self.docTopicalWordDist,
-                    'docWordCounts': self.docTotalWordCounts}
+                    'docWordCounts': self.docTotalWordCounts,
+                    'stopwords': self.stopwords}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
