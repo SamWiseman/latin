@@ -1,0 +1,23 @@
+{
+  "required parameters":{
+    "source": "pseudoLDA.txt",
+    "iterations": 20,
+    "topics": 5,
+    "output name": "pseudoLDA"
+  },
+  "stopword options":{
+    "upper limit": "off",
+    "lower limit": "off",
+    "whitelist": ["vir", "ecclesia"],
+    "blacklist": ["et", "cum"]
+  },
+  "chunking options":{
+    "number of documents": 5,
+    "length of documents": "off",
+    "split string": "off"
+  },
+  "hyperparameters":{
+    "alpha": 0.8,
+    "beta": 0.8
+  }
+}

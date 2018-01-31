@@ -2,7 +2,6 @@
 
 import csv
 import json
-import random
 import sys
 from collections import OrderedDict, Counter
 from numpy.random import choice
@@ -23,9 +22,7 @@ for each iteration and printing at the end.
 """
 
 
-def runLDA(iterations, readfile, outputname, topics, alpha, beta):
-    corpus = CorpusData(readfile, topics)
-    corpus.loadData(0.2, 0.9, [], [])
+def runLDA(corpus, iterations, alpha, beta):
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -39,19 +36,6 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
-    corpus.createAnnoTextDataStructure()
-    corpus.encodeData(readfile, topics, iterations, alpha, beta, outputname)
-
-    # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
-    for topic in corpus.topicWordInstancesDict:
-        for key in list(topic.keys()):
-            if topic[key] == 0:
-                del topic[key]
-    corpus.printTopics()
-    corpus.outputAsCSV(outputname)
-    # evaluation.compareDistributions(corpus)
-    # evaluation.compareTopicSize(corpus)
-    # evaluation.topicSpecificity(corpus)
 
 
 class CorpusData:
@@ -99,6 +83,8 @@ class CorpusData:
 
     numTopics = 0
 
+    stopwords = []
+
     # constructor
     def __init__(self, file, numTopics):
         self.file = file
@@ -144,26 +130,28 @@ class CorpusData:
                 if word not in wordInDoc:
                     wordInDoc.append(word)
                     wordDocCounts[word] += 1
-
+        if stopLowerBound == "off":
+            stopLowerBound = 0
+        if stopUpperBound == "off":
+            stopUpperBound = 2
         lowerBound = math.ceil(len(self.wordLocationArray) * stopLowerBound)
         upperBound = math.ceil(len(self.wordLocationArray) * stopUpperBound)
-        stopwords = []
         # create an array of stopwords
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
-                stopwords.append(word)
+                self.stopwords.append(word)
         for bannedWord in stopBlacklist:
-            if bannedWord not in stopwords:
-                stopwords.append(bannedWord)
+            if bannedWord not in self.stopwords:
+                self.stopwords.append(bannedWord)
         for allowedWord in stopWhitelist:
-            if allowedWord in stopwords:
-                stopwords.remove(allowedWord)
+            if allowedWord in self.stopwords:
+                self.stopwords.remove(allowedWord)
 
         # remove all stopwords from wordLocationArray and uniqueWordDict
 
         for docWords in self.wordLocationArray:
-            docWords[:] = [w for w in docWords if w not in stopwords]
-        for w in stopwords:
+            docWords[:] = [w for w in docWords if w not in self.stopwords]
+        for w in self.stopwords:
             self.uniqueWordDict.pop(w, None)
 
         '''
@@ -240,6 +228,9 @@ class CorpusData:
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
+        for doc in self.topicAssignByLocStatic:
+            for location in range(len(doc)):
+                doc[location] = int(doc[location])
         dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
@@ -254,7 +245,8 @@ class CorpusData:
                     'topicList': self.topicWordInstancesDict,
                     'topicWordCounts': self.topicTotalWordCount,
                     'docList': self.docTopicalWordDist,
-                    'docWordCounts': self.docTotalWordCounts}
+                    'docWordCounts': self.docTotalWordCounts,
+                    'stopwords': self.stopwords}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
@@ -361,12 +353,11 @@ def txtToCsv(fileName, splitString):
     if splitString[:3] == 'num':
         numDocs = int(splitString[3:])
         docLength = len(wordList) // numDocs
-        docStringsArray = getDocsOfLength(docLength, wordList)
-        #TODO: find a way to split the file into an arbitrarily chosen number of documents
+        docStringsArray = getDocsOfLength(docLength, wordList, True)
     #to have a fixed length document, input "lengthXX" for documents of length XX
     elif splitString[:6] == 'length':
         docLength = int(splitString[6:])
-        docStringsArray = getDocsOfLength(docLength, wordList)
+        docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
         docStringsArray = fileString.split(splitString)
     print("Number of documents: " + str(len(docStringsArray)))
@@ -385,20 +376,31 @@ def txtToCsv(fileName, splitString):
                     filewriter.writerow([word,str(currentDoc)])
             currentDoc += 1
 
-def getDocsOfLength(docLen, wordList):
+def getDocsOfLength(docLen, wordList, numCap):
     print("Length of each document: " + str(docLen))
     docStringsArray = []
     while wordList:
         doc = " ".join(str(wordList[i]) for i in range(min(docLen, len(wordList))))
         wordList = wordList[docLen:]
         docStringsArray.append(doc)
+    lastDocLen = len(docStringsArray[-1].split())
+    #if we have a fixed number of documents, we want to stick a "stub" document onto the last one
+    #otherwise, we will do it if it is under half the desired document length
+    if (numCap and lastDocLen < docLen) or \
+    (not numCap and lastDocLen < docLen // 2):
+        stubDoc = docStringsArray.pop()
+        appendString = " " + stubDoc
+        docStringsArray[-1] += appendString
     return docStringsArray
 
 def makeChunkString(chunkType, chunkParam):
     chunkString = ''
-    if chunkType == 'num' or chunkType == 'length':
-        chunkString += chunkType
-        chunkString += chunkParam
+    if chunkType == 'number of documents':
+        chunkString += 'num'
+        chunkString += str(chunkParam)
+    elif chunkType == 'length of documents':
+        chunkString += 'length'
+        chunkString += str(chunkParam)
     elif chunkType == 'string':
         chunkString = chunkParam
     else:
@@ -407,40 +409,49 @@ def makeChunkString(chunkType, chunkParam):
     return chunkString
 
 
-# tiny test function
-#chunking: chunkType can be "num", "length", or "string"
-#chunkParam can be number of docs, length of docs, or splitstring respectively
 def main():
-    if len(sys.argv) != 7 and len(sys.argv) != 9:
-        print("Usage: LDA.py iterations readfile topics encodefile chunkType chunkParam (optional: alpha=0.8 beta=0.8)")
-    elif len(sys.argv) == 9:
-        iterations = int(sys.argv[1])
-        readFile = sys.argv[2]
-        topics = int(sys.argv[3])
-        encodeFile = sys.argv[4]
-        chunkType = sys.argv[5]
-        chunkParam = sys.argv[6]
-        alpha = float(sys.argv[7])
-        beta = float(sys.argv[8])
-        chunkString = makeChunkString(chunkType, chunkParam)
-        if readFile[-3:] == 'txt':
-            txtToCsv(readFile, chunkString)
-            readFile = readFile[:-4]+".csv"
-        runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
-    else:
-        print("Iterations: " + sys.argv[1])
-        iterations = int(sys.argv[1])
-        readFile = sys.argv[2]
-        topics = int(sys.argv[3])
-        encodeFile = sys.argv[4]
-        chunkType = sys.argv[5]
-        chunkParam = sys.argv[6]
-        chunkString = makeChunkString(chunkType, chunkParam)
-        if readFile[-3:] == 'txt':
-            txtToCsv(readFile, chunkString)
-            readFile = readFile[:-4]+".csv"
-        runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
+    configFile = sys.argv[1]
+    configString = open(configFile, 'r').read()
+    config = json.loads(configString)
+    source = config["required parameters"]["source"]
+    iterations = config["required parameters"]["iterations"]
+    topics = config["required parameters"]["topics"]
+    outputname = config["required parameters"]["output name"]
+    upperlimit = config["stopword options"]["upper limit"]
+    lowerlimit = config["stopword options"]["upper limit"]
+    whitelist = config["stopword options"]["whitelist"]
+    blacklist = config["stopword options"]["blacklist"]
+    chunkingoptions = config["chunking options"]
+    chunkType = ""
+    chunkParam = 0
+    for option in chunkingoptions.keys():
+        if chunkingoptions[option] != "off":
+            chunkType = option
+            chunkParam = chunkingoptions[option]
+            break
+    alpha = config["hyperparameters"]["alpha"]
+    beta = config["hyperparameters"]["beta"]
+    chunkString = makeChunkString(chunkType, chunkParam)
+    if source[-3:] == 'txt':
+        txtToCsv(source, chunkString)
+        source = source[:-4] + ".csv"
 
+    corpus = CorpusData(source, topics)
+    corpus.loadData(upperlimit, lowerlimit, whitelist, blacklist)
+    runLDA(corpus, iterations, alpha, beta)
+    corpus.createAnnoTextDataStructure()
+    corpus.encodeData(source, topics, iterations, alpha, beta, outputname)
+
+    # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
+    for topic in corpus.topicWordInstancesDict:
+        for key in list(topic.keys()):
+            if topic[key] == 0:
+                del topic[key]
+    corpus.printTopics()
+    corpus.outputAsCSV(outputname)
+    # evaluation.compareDistributions(corpus)
+    # evaluation.compareTopicSize(corpus)
+    # evaluation.topicSpecificity(corpus)
 
 if __name__ == "__main__":
     main()
