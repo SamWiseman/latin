@@ -10,6 +10,7 @@ import time
 import math
 import evaluation
 from operator import itemgetter
+import copy
 
 """
 runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
@@ -24,7 +25,7 @@ for each iteration and printing at the end.
 
 def runLDA(iterations, readfile, outputname, topics, alpha, beta):
     corpus = CorpusData(readfile, topics)
-    corpus.loadData(0.005, 0.85, ["david"], ["his", "he", "her", "she", "the"])
+    corpus.loadData(0.2, 0.9, [], [])
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -38,7 +39,8 @@ def runLDA(iterations, readfile, outputname, topics, alpha, beta):
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
-    corpus.encodeData(readfile, outputname)
+    corpus.createAnnoTextDataStructure()
+    corpus.encodeData(readfile, topics, iterations, alpha, beta, outputname)
 
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
     for topic in corpus.topicWordInstancesDict:
@@ -59,6 +61,12 @@ class CorpusData:
     # 2d array: outer array contains documents which are arrays of topics which exactly match the words
     # in the previous array
     topicAssignmentByLoc = []
+
+    #data structures used for creating the annotated text
+    #wordLocArrayStatic is wordLocationArray with stopwords included
+    #topicAssignByLocStatic is topicAssignmentByLoc with stopwords included
+    wordLocArrayStatic = []
+    topicAssignByLocStatic = []
 
     # Word Information
     # dictionary mapping unique words to the number of times they appear
@@ -126,6 +134,7 @@ class CorpusData:
 
                 # load word counts into dictionary
         self.uniqueWordDict = Counter(wordsColumn)
+        self.wordLocArrayStatic = copy.deepcopy(self.wordLocationArray)
 
         # removes stopwords (above 90%, below 5%)
         wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
@@ -227,13 +236,19 @@ class CorpusData:
             print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
-    def encodeData(self, readfile, outputname):
+    def encodeData(self, readfile, topics, iterations, alpha, beta, outputname):
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
-        dumpDict = {'dataset': readfile,
+        dumpDict = {'dataset': readfile[:-4],
+                    'topics': topics,
+                    'iterations': iterations,
+                    'alpha': alpha,
+                    'beta': beta,
                     'wordsByLocation': self.wordLocationArray,
+                    'wordsByLocationWithStopwords': self.wordLocArrayStatic,
                     'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
                     'wordCounts': self.uniqueWordDict,
                     'wordTopicCounts': self.wordDistributionAcrossTopics,
                     'topicList': self.topicWordInstancesDict,
@@ -322,54 +337,107 @@ class CorpusData:
                 else:
                     break
 
+    #create versions of the data structures that include stopwords in order to create the annotated text
+    def createAnnoTextDataStructure(self):
+        stopwordTopic = -1
+        for document in range(len(self.wordLocationArray)):
+            docTopicList = []
+            counter = 0
+            for word in range(len(self.wordLocArrayStatic[document])):
+                if len(self.wordLocationArray[document]) > counter:
+                    if self.wordLocArrayStatic[document][word] == self.wordLocationArray[document][counter]:
+                        docTopicList.append(self.topicAssignmentByLoc[document][counter])
+                        counter += 1
+                    else:
+                        docTopicList.append(stopwordTopic)
+                else:
+                    docTopicList.append(stopwordTopic)
+            self.topicAssignByLocStatic.append(docTopicList)
+
 
 def txtToCsv(fileName, splitString):
     fileString = open(fileName, 'r').read().lower()
-    if splitString is None:
-        print('potaato')
-        # TODO: find a way to split the file into an arbitrarily chosen number of documents
-    else:
+    wordList = fileString.split()
+    if splitString[:3] == 'num':
+        numDocs = int(splitString[3:])
+        docLength = len(wordList) // numDocs
+        docStringsArray = getDocsOfLength(docLength, wordList)
+        #TODO: find a way to split the file into an arbitrarily chosen number of documents
+    #to have a fixed length document, input "lengthXX" for documents of length XX
+    elif splitString[:6] == 'length':
+        docLength = int(splitString[6:])
+        docStringsArray = getDocsOfLength(docLength, wordList)
+    else: 
         docStringsArray = fileString.split(splitString)
-        for i in range(len(docStringsArray)):
-            # TODO: Handle all escape characters
-            docStringsArray[i] = docStringsArray[i].replace("\n", " ")
-        csvfilename = fileName[:-4]+".csv"
-        with open(csvfilename, 'w', newline='') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',')
-            currentDoc = 1
-            for docString in docStringsArray:
-                wordsArray = docString.split(' ')
-                for word in wordsArray:
-                    word = word.strip('.,!?"():;\n\t')
-                    if word != '':
-                        filewriter.writerow([word, str(currentDoc)])
-                currentDoc += 1
+    print("Number of documents: " + str(len(docStringsArray)))
+    for i in range(len(docStringsArray)):
+        #TODO: Handle all escape characters
+        docStringsArray[i] = docStringsArray[i].replace("\n", " ")
+    csvfilename = fileName[:-4]+".csv"
+    with open(csvfilename, 'w', newline='') as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',')
+        currentDoc = 1
+        for docString in docStringsArray:
+            wordsArray = docString.split(' ')
+            for word in wordsArray:
+                word = word.strip('.,!?"():;\n\t')
+                if word != '':
+                    filewriter.writerow([word,str(currentDoc)])
+            currentDoc += 1
+
+def getDocsOfLength(docLen, wordList):
+    print("Length of each document: " + str(docLen))
+    docStringsArray = []
+    while wordList:
+        doc = " ".join(str(wordList[i]) for i in range(min(docLen, len(wordList))))
+        wordList = wordList[docLen:]
+        docStringsArray.append(doc)
+    return docStringsArray
+
+def makeChunkString(chunkType, chunkParam):
+    chunkString = ''
+    if chunkType == 'num' or chunkType == 'length':
+        chunkString += chunkType
+        chunkString += chunkParam
+    elif chunkType == 'string':
+        chunkString = chunkParam
+    else:
+        print("Invalid chunkType given.\n")
+        exit()
+    return chunkString
 
 
 # tiny test function
+#chunking: chunkType can be "num", "length", or "string"
+#chunkParam can be number of docs, length of docs, or splitstring respectively
 def main():
-    if len(sys.argv) != 5 and len(sys.argv) != 7:
-        print("Usage: LDA.py iterations readfile topics encodefile (optional: alpha=0.8 beta=0.8)")
-    elif len(sys.argv) == 7:
+    if len(sys.argv) != 7 and len(sys.argv) != 9:
+        print("Usage: LDA.py iterations readfile topics encodefile chunkType chunkParam (optional: alpha=0.8 beta=0.8)")
+    elif len(sys.argv) == 9:
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
         topics = int(sys.argv[3])
         encodeFile = sys.argv[4]
-        alpha = float(sys.argv[5])
-        beta = float(sys.argv[6])
+        chunkType = sys.argv[5]
+        chunkParam = sys.argv[6]
+        alpha = float(sys.argv[7])
+        beta = float(sys.argv[8])
+        chunkString = makeChunkString(chunkType, chunkParam)
         if readFile[-3:] == 'txt':
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, chunkString)
             readFile = readFile[:-4]+".csv"
         runLDA(iterations, readFile, encodeFile, topics, alpha, beta)
     else:
-        print(sys.argv[1])
-
+        print("Iterations: " + sys.argv[1])
         iterations = int(sys.argv[1])
         readFile = sys.argv[2]
         topics = int(sys.argv[3])
         encodeFile = sys.argv[4]
+        chunkType = sys.argv[5]
+        chunkParam = sys.argv[6]
+        chunkString = makeChunkString(chunkType, chunkParam)
         if readFile[-3:] == 'txt':
-            txtToCsv(readFile, '\n\n\n')
+            txtToCsv(readFile, chunkString)
             readFile = readFile[:-4]+".csv"
         runLDA(iterations, readFile, encodeFile, topics, 0.8, 0.8)
 
