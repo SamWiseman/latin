@@ -1,9 +1,9 @@
 {
   "required parameters":{
-    "source": "pseudoLDA.txt",
-    "iterations": 20,
-    "topics": 5,
-    "output name": "pseudoLDA"
+    "source": "harry.txt",
+    "iterations": 30,
+    "topics": 20,
+    "output name": "harry"
   },
   "stopword options":{
     "upper limit": "off",
@@ -12,8 +12,8 @@
     "blacklist": ["et", "cum"]
   },
   "chunking options":{
-    "number of documents": 5,
-    "length of documents": "off",
+    "number of documents": "off",
+    "length of documents": 500,
     "split string": "off"
   },
   "hyperparameters":{
