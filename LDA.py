@@ -12,17 +12,22 @@ from operator import itemgetter
 import copy
 
 """
-runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
-for each iteration and printing at the end.
+runLDA(corpus, iterations, alpha, beta) -- this method handles the iteration of LDA on the corpus, updating the corpus 
+data structures on each iteration.
 :param iterations: int -- number of iterations to run
-:param file: string -- file name to read data from
-:param topics: int -- how many topics to create
 :param alpha: float -- hyperparameter to add to each P(w|t)
 :param beta: float -- hyperparameter to add to each P(t|d)
 """
-
-
 def runLDA(corpus, iterations, alpha, beta):
+    '''
+    This method handles the iteration of LDA on the corpus, updating the corpus data structures on each iteration.
+
+    @param corpus: the CorpusData object containing the data structures
+    @param iterations:
+    @param alpha:
+    @param beta:
+    @return:
+    '''
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -37,7 +42,8 @@ def runLDA(corpus, iterations, alpha, beta):
         #printing the elapsed time (real-time)
         print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
 
-
+"""
+"""
 class CorpusData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
@@ -231,21 +237,25 @@ class CorpusData:
         for doc in self.topicAssignByLocStatic:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
+        for topic in self.topicWordInstancesDict:
+            for word in topic:
+                if topic[word] == 0:
+                    del topic[word]
         dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
                     'alpha': alpha,
                     'beta': beta,
-                    'wordsByLocation': self.wordLocationArray,
+                    'wordLocationArray': self.wordLocationArray,
                     'wordsByLocationWithStopwords': self.wordLocArrayStatic,
-                    'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicAssignmentByLoc': self.topicAssignmentByLoc,
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
-                    'wordCounts': self.uniqueWordDict,
-                    'wordTopicCounts': self.wordDistributionAcrossTopics,
-                    'topicList': self.topicWordInstancesDict,
-                    'topicWordCounts': self.topicTotalWordCount,
-                    'docList': self.docTopicalWordDist,
-                    'docWordCounts': self.docTotalWordCounts,
+                    'uniqueWordDict': self.uniqueWordDict,
+                    'wordDistributionAcrossTopics': self.wordDistributionAcrossTopics,
+                    'topicWordInstancesDict': self.topicWordInstancesDict,
+                    'topicTotalWordCount': self.topicTotalWordCount,
+                    'docTopicalWordDist': self.docTopicalWordDist,
+                    'docTotalWordCounts': self.docTotalWordCounts,
                     'stopwords': self.stopwords}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
