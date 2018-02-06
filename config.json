@@ -1,16 +1,9 @@
 {
   "required parameters":{
-<<<<<<< HEAD
-    "source": "frankenTwo.txt",
-    "iterations": 200,
-    "topics": 10,
-    "output name": "FrankenFile"
-=======
     "source": "gatsby.txt",
     "iterations": 30,
     "topics": 20,
     "output name": "gatsby"
->>>>>>> 9b4956a7cd4e8d6162850cda7e16e82cb63ed412
   },
   "stopword options":{
     "upper limit": "off",
@@ -20,13 +13,9 @@
                     "this", "that", "if", "him", "me", "ebook", "by", "is", "on", "so", "as", "about", "because"]
   },
   "chunking options":{
-<<<<<<< HEAD
-    "number of documents": 35,
-    "length of documents": "off",
-=======
+
     "number of documents": "off",
     "length of documents": 500,
->>>>>>> 9b4956a7cd4e8d6162850cda7e16e82cb63ed412
     "split string": "off"
   },
   "hyperparameters":{
