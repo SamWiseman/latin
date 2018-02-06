@@ -1,9 +1,9 @@
 {
   "required parameters":{
-    "source": "harry.txt",
+    "source": "gatsby.txt",
     "iterations": 30,
     "topics": 20,
-    "output name": "harry"
+    "output name": "gatsby"
   },
   "stopword options":{
     "upper limit": "off",
