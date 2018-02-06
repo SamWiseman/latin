@@ -11,7 +11,6 @@ import evaluation
 from operator import itemgetter
 import copy
 
-
 def runLDA(corpus, iterations, alpha, beta):
     """An implementation of Latent Dirichlet Allocation. Probabilistically
         generates "topics" for a given corpus, each of which contains many 
@@ -34,6 +33,7 @@ def runLDA(corpus, iterations, alpha, beta):
             variety of words.
 
     """
+
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -265,21 +265,26 @@ class CorpusData:
         for doc in self.topicAssignByLocStatic:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
+        """ This section is causing a bug:
+        for topic in self.topicWordInstancesDict:
+            for word in topic:
+                if topic[word] == 0:
+                    del topic[word]"""
         dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
                     'alpha': alpha,
                     'beta': beta,
-                    'wordsByLocation': self.wordLocationArray,
+                    'wordLocationArray': self.wordLocationArray,
                     'wordsByLocationWithStopwords': self.wordLocArrayStatic,
-                    'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicAssignmentByLoc': self.topicAssignmentByLoc,
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
-                    'wordCounts': self.uniqueWordDict,
-                    'wordTopicCounts': self.wordDistributionAcrossTopics,
-                    'topicList': self.topicWordInstancesDict,
-                    'topicWordCounts': self.topicTotalWordCount,
-                    'docList': self.docTopicalWordDist,
-                    'docWordCounts': self.docTotalWordCounts,
+                    'uniqueWordDict': self.uniqueWordDict,
+                    'wordDistributionAcrossTopics': self.wordDistributionAcrossTopics,
+                    'topicWordInstancesDict': self.topicWordInstancesDict,
+                    'topicTotalWordCount': self.topicTotalWordCount,
+                    'docTopicalWordDist': self.docTopicalWordDist,
+                    'docTotalWordCounts': self.docTotalWordCounts,
                     'stopwords': self.stopwords}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
