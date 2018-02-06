@@ -11,18 +11,29 @@ import evaluation
 from operator import itemgetter
 import copy
 
-"""
-runLDA(iterations, file, topics, alpha, beta) -- this method handles the iteration of LDA, calling helper methods
-for each iteration and printing at the end.
-:param iterations: int -- number of iterations to run
-:param file: string -- file name to read data from
-:param topics: int -- how many topics to create
-:param alpha: float -- hyperparameter to add to each P(w|t)
-:param beta: float -- hyperparameter to add to each P(t|d)
-"""
-
-
 def runLDA(corpus, iterations, alpha, beta):
+    """An implementation of Latent Dirichlet Allocation. Probabilistically
+        generates "topics" for a given corpus, each of which contains many
+        words that are related by their coocurrence in the text. Uses the
+        CorpusData data structure containing information about word location
+        and outputs a list of the words in each topic to the shell after the
+        desired number of iterations.
+
+    Args:
+        corpus (CorpusData): A data structure that has already called "loadData"
+            on a text.
+        iterations (int): The desired number of iterations for the LDA algorithm.
+            More iterations lead to more consistent, coherent topics at the cost of
+            a longer runtime.
+        alpha (float): The first "hyperparameter" or "smoothing constant." Affects
+            the P(w|t) calculation. When alpha is higher, documents tend to
+            represent a greater variety of topics.
+        beta (float): Another hyperparameter, this one affecting the P(t|d)
+            calculation. A higher value for beta causes topics to contain a greater
+            variety of words.
+
+    """
+
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -35,9 +46,13 @@ def runLDA(corpus, iterations, alpha, beta):
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
-        print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() -startTime))
+        print("Time elapsed for iteration " + str(i) + ": " \
+         + str(time.clock() - startTime))
 
 
+# class that stores words from a text and organizes them in various ways to facilitate LDA
+# organization can be by location, by document, by word, and topic
+# the methods load in text, encode data, and output topics in various ways
 class CorpusData:
     # Location Information
     # 2d array: outer array contains documents which are arrays of words in the order they appear
@@ -79,14 +94,23 @@ class CorpusData:
     # working csv
     file = ""
 
-    # number of topics we want in the algorithm
+    # number of topics we want in the output
 
     numTopics = 0
 
     stopwords = []
 
-    # constructor
     def __init__(self, file, numTopics):
+        """Constructor for CorpusData.
+
+        Args:
+            file (str): The path to a csv file storing the words in a corpus and their documents.
+            numTopics (int): The number of topics to be output by this instance of LDA.
+
+        Returns:
+            CorpusData: An instance of the corpus data class that only contains a file and number of topics.
+
+        """
         self.file = file
         self.numTopics = numTopics
 
@@ -97,6 +121,17 @@ class CorpusData:
     # strings in stopWhitelist will not be filtered out even if they are outside the document bounds
     # strings in stopBlacklist will be filtered out even if they are inside the document bounds
     def loadData(self, stopLowerBound, stopUpperBound, stopWhitelist, stopBlacklist):
+        """Reads the csv and loads the data structures used in LDA.
+
+        Args:
+            stopLowerBound (float): The minimum percentage of documents a word must appear in
+                to be included in the algorithm.
+            stopUpperBound (float): The maximum percentage of documents a word can appear in
+                to be included in the algorithm.
+            stopWhitelist (list): A list of words that should never be filtered out of the algorithm.
+            stopBlacklist (list): A list of words that should always be filtered out of the algorithm.
+
+        """
         with open(self.file, 'r') as csvfile:
             reader = csv.reader(csvfile)
             wordsColumn = []
@@ -122,7 +157,7 @@ class CorpusData:
         self.uniqueWordDict = Counter(wordsColumn)
         self.wordLocArrayStatic = copy.deepcopy(self.wordLocationArray)
 
-        # removes stopwords (above 90%, below 5%)
+        # removes stopwords
         wordDocCounts = dict.fromkeys(self.uniqueWordDict, 0)
         for doc in self.wordLocationArray:
             wordInDoc = []
@@ -154,18 +189,6 @@ class CorpusData:
         for w in self.stopwords:
             self.uniqueWordDict.pop(w, None)
 
-        '''
-        sortedWords = sorted(wordsColumn)
-        count = 0
-        lastWord = sortedWords[0]
-        for word in sortedWords:
-            if word == lastWord:
-                count += 1
-            else:
-                self.wordCounts[lastWord] = count
-                count = 1
-            lastWord = word 
-        '''
         # count words in each document (docWordCounts)
         docSet = list(OrderedDict.fromkeys(docColumn))
         for doc in docSet:
@@ -213,51 +236,85 @@ class CorpusData:
                 # if wordTopics[i] != 0:
                 #    self.topicWordCounts[i] += 1
 
-    """
-    printTopics() -- this method prints each topic in topicList on a new line in the format 
-    "Topic 1: word1, word2, word3, etc." The words are sorted according to highest incidence 
-    in the topic.
-    """
-
     def printTopics(self):
+        """Prints each topic in topicList on a new line in the format "Topic 1: word1, word2,
+            word3, ..." The words are sorted from highest to lowest incidence in the topic.
+
+        """
         for topic in self.topicWordInstancesDict:
             print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
     def encodeData(self, readfile, topics, iterations, alpha, beta, outputname):
+        """Encodes information about the LDA output in a .json file. Stores the
+            name of the input file, number of topics, number of iterations,
+            hyperparameters, and data structures used to build the topics.
+
+        Args:
+            readfile (str): Name of the file given as input to LDA (with file extension).
+            topics (int): Number of topics generated by this run of LDA.
+            iterations (int): Number of iterations of this run of LDA.
+            alpha (float): Alpha constant used in this run of LDA.
+            beta (float): Beta constant used in this run of LDA.
+            outputname (str): Name of the desired output JSON file (without file extension).
+
+        """
         for doc in self.topicAssignmentByLoc:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
         for doc in self.topicAssignByLocStatic:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
+        for i in range(len(self.topicWordInstancesDict)):
+            self.topicWordInstancesDict[i] = {k:v for k,v in self.topicWordInstancesDict[i].items() if v}
+
         dumpDict = {'dataset': readfile[:-4],
                     'topics': topics,
                     'iterations': iterations,
                     'alpha': alpha,
                     'beta': beta,
-                    'wordsByLocation': self.wordLocationArray,
+                    'wordLocationArray': self.wordLocationArray,
                     'wordsByLocationWithStopwords': self.wordLocArrayStatic,
-                    'topicsByLocation': self.topicAssignmentByLoc,
+                    'topicAssignmentByLoc': self.topicAssignmentByLoc,
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
-                    'wordCounts': self.uniqueWordDict,
-                    'wordTopicCounts': self.wordDistributionAcrossTopics,
-                    'topicList': self.topicWordInstancesDict,
-                    'topicWordCounts': self.topicTotalWordCount,
-                    'docList': self.docTopicalWordDist,
-                    'docWordCounts': self.docTotalWordCounts,
+                    'uniqueWordDict': self.uniqueWordDict,
+                    'wordDistributionAcrossTopics': self.wordDistributionAcrossTopics,
+                    'topicWordInstancesDict': self.topicWordInstancesDict,
+                    'topicTotalWordCount': self.topicTotalWordCount,
+                    'docTopicalWordDist': self.docTopicalWordDist,
+                    'docTotalWordCounts': self.docTotalWordCounts,
                     'stopwords': self.stopwords}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
 
     def removeWordFromDataStructures(self, word, doc, oldTopic):
+        """Removes an instance of a word from a topic and updates the
+            approrpriate data structures accordingly.
+
+        Args:
+            word (int): The index of the given word in its home document.
+            doc (int): The index of the given document in wordLocationArray.
+            oldTopic (int): The index of the topic from which the word in
+                question is being removed.
+
+        """
         wordString = self.wordLocationArray[doc][word]
         self.topicWordInstancesDict[oldTopic][wordString] -= 1
         self.topicTotalWordCount[oldTopic] -= 1
         self.docTopicalWordDist[doc][oldTopic] -= 1
 
     def addWordToDataStructures(self, word, doc, newTopic):
+        """Adds an instance of a word to a topic and updates the approrpriate
+            data structures accordingly.
+
+        Args:
+            word (int): The index of the given word in its home document.
+            doc (int): The index of the given document in wordLocationArray.
+            newTopic (int): The index of the topic to which the word in
+                question is being added.
+
+        """
         wordString = self.wordLocationArray[doc][word]
         self.topicAssignmentByLoc[doc][word] = newTopic
         self.topicWordInstancesDict[newTopic][wordString] += 1
@@ -267,6 +324,22 @@ class CorpusData:
     ''' LDA methods for recalculating the probabilities of each word by topic '''
 
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
+        """Given an instance of a word and two smoothing constants, returns
+            a list of probabilities that a word will be assigned to each topic.
+
+        Args:
+            docCoord (int): The index of the document in question.
+            wordCoord (int): The index of the desired word in that document.
+            alpha (float): A constant default value for the P(w|t) calculation.
+            beta (float): A constant default value for the P(t|d) calculation.
+
+        Returns:
+            [float]: A list of normalized probabilities that the given word
+            will appear in each topic. Each index in this list corresponds to a
+            topic, and the probability associated with the topic is used in
+            runLDA to determine to which topic a word should be assigned.
+
+        """
         word = self.wordLocationArray[docCoord][wordCoord]
         newWordProbs = []
         for i in range(len(self.topicWordInstancesDict)):
@@ -291,6 +364,16 @@ class CorpusData:
         return normalizedProbabilities
 
     def outputAsCSV(self, outputname):
+        """Creates a .csv file containing readable results from the LDA run.
+            Each topic has three columns: Word, Count (number of times the
+            word appears in that topic) and Percentage (percentage of that
+            topic that is the given word).
+
+        Args:
+            outputname (str): The desired name (with no file extension) of the
+                .csv output file.
+
+        """
         loadData = []
         largestTopic = max(self.topicTotalWordCount)
         for i in range(largestTopic + 2):
@@ -318,7 +401,7 @@ class CorpusData:
                 loadData[j + 2][3 * i] = topicAsList[j][0]
                 loadData[j + 2][3 * i + 1] = topicAsList[j][1]
                 loadData[j + 2][3 * i + 2] = topicAsList[j][2]
-        outputfile = outputname+".csv"
+        outputfile = outputname + ".csv"
         with open(outputfile, 'w', newline='') as csvfile:
             filewriter = csv.writer(csvfile, delimiter=',')
             count = 0
@@ -329,8 +412,11 @@ class CorpusData:
                 else:
                     break
 
-    #create versions of the data structures that include stopwords in order to create the annotated text
     def createAnnoTextDataStructure(self):
+        """Creates "static" versions of several data structures such that they
+            contain stop words. Used in the creation of the annotated text.
+
+        """
         stopwordTopic = -1
         for document in range(len(self.wordLocationArray)):
             docTopicList = []
@@ -348,6 +434,17 @@ class CorpusData:
 
 
 def txtToCsv(fileName, splitString):
+    """Given a .txt file containing the corpus, creates a .csv file that chunks the
+        corpus based on splitString. The .csv file has two columns: the first contains
+        words in the order they appear in the corpus, and the second contains the
+        document (denoted by an integer starting from 1) that contains the word.
+
+    Args:
+        fileName (str): The name of the .txt file being read and converted.
+        splitString (str): The string generated by makeChunkString that
+            gives instructions on how to split up the txt file into documents.
+
+    """
     fileString = open(fileName, 'r').read().lower()
     wordList = fileString.split()
     if splitString[:3] == 'num':
@@ -377,6 +474,27 @@ def txtToCsv(fileName, splitString):
             currentDoc += 1
 
 def getDocsOfLength(docLen, wordList, numCap):
+    """Divides a list of words up by documents with a desired length. If the words
+        don't divide evenly into this number, the last document will either be
+        longer or shorter than the rest depending on the circumstances.
+
+    Args:
+        docLen (int): The number of words that should appear in each document.
+        wordList ([str]): A list containing all of the words in a corpus split
+            by whitespace.
+        numCap (bool): True if a desired number of documents was specified and
+            an additional "stub document" would be a problem. False otherwise.
+
+    Returns:
+        docStringsArray ([[str]]): A list of documents, each containing (docLen)
+            words in the order they appear in the corpus. If numCap was True and
+            wordList doesn't divide evenly by docLen, the last element of this
+            list will be longer than the rest. Otherwise, whether there is a
+            longer final document or a shorter final document depends on whether
+            len(wordList) % docLen is less than or greater than docLen / 2
+            respectively.
+
+    """
     print("Length of each document: " + str(docLen))
     docStringsArray = []
     while wordList:
@@ -394,6 +512,21 @@ def getDocsOfLength(docLen, wordList, numCap):
     return docStringsArray
 
 def makeChunkString(chunkType, chunkParam):
+    """Creates a string that instructs txtToCsv how to split up documents.
+
+    Args:
+        chunkType (str): "number of documents" or "length of documents" depending on
+            whether documents should be into a given number or by a given length
+            (by number of words), or 'string' if a document should be split on a
+            given string.
+        chunkParam (int): Depending on chunkType, represents the desired number of
+            documents or the desired length of documents in number of words.
+
+    Returns:
+        str: A string such as "num200" "length7150" or "\n\n\n" that instructs txtToCsv
+            how to split up a text file into documents.
+
+    """
     chunkString = ''
     if chunkType == 'number of documents':
         chunkString += 'num'
@@ -410,6 +543,12 @@ def makeChunkString(chunkType, chunkParam):
 
 
 def main():
+    """ Uses config.json to be run straight from the shell with no other
+        arguments: "python3 LDA.py config.json". Calls virtually every other
+        function in the file. Topics are generated according to the settings
+        in config.json and relevant data is placed in [outputname].json.
+
+    """
     if len(sys.argv) != 2:
         print("Usage: LDA.py [config file].")
         exit()
