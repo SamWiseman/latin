@@ -1,22 +1,24 @@
 {
   "required parameters":{
-    "source": "pseudoLDA.txt",
-    "iterations": 20,
-    "topics": 5,
-    "output name": "pseudoLDA"
+    "source": "frankenTwo.txt",
+    "iterations": 200,
+    "topics": 10,
+    "output name": "FrankenFile"
   },
   "stopword options":{
     "upper limit": "off",
     "lower limit": "off",
-    "whitelist": ["vir", "ecclesia"],
-    "blacklist": ["et", "cum"]
+    "whitelist": [],
+    "blacklist": ["and", "the", "but", "he", "she", "they", "of", "a", "with", "i", "you", "or", "it", "in", "for", "his",
+                    "this", "that", "if", "him", "me", "ebook", "by", "is", "on", "so", "as", "about", "because"]
   },
   "chunking options":{
-    "number of documents": 5,
+    "number of documents": 35,
     "length of documents": "off",
     "split string": "off"
   },
   "hyperparameters":{
+// number from 0 to 1, higher value decreases likelihood of word or topic disappearing
     "alpha": 0.8,
     "beta": 0.8
   }

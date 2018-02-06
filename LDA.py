@@ -410,6 +410,9 @@ def makeChunkString(chunkType, chunkParam):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: LDA.py [config file].")
+        exit()
     configFile = sys.argv[1]
     configString = open(configFile, 'r').read()
     config = json.loads(configString)
