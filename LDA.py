@@ -1,5 +1,5 @@
 '''This file implements LDA Topic Modeling'''
-
+'''Usage: python3 LDA.py'''
 import csv
 import json
 import sys
@@ -169,8 +169,10 @@ class CorpusData:
             stopLowerBound = 0
         if stopUpperBound == "off":
             stopUpperBound = 2
-        lowerBound = math.ceil(len(self.wordLocationArray) * stopLowerBound)
-        upperBound = math.ceil(len(self.wordLocationArray) * stopUpperBound)
+        
+        lowerBound = math.ceil(len(self.wordLocationArray) * float(stopLowerBound))
+        upperBound = math.ceil(len(self.wordLocationArray) * float(stopUpperBound))
+        
         # create an array of stopwords
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
@@ -183,7 +185,8 @@ class CorpusData:
                 self.stopwords.remove(allowedWord)
 
         # remove all stopwords from wordLocationArray and uniqueWordDict
-
+        self.stopwords = set(self.stopwords)
+        
         for docWords in self.wordLocationArray:
             docWords[:] = [w for w in docWords if w not in self.stopwords]
         for w in self.stopwords:
@@ -283,7 +286,7 @@ class CorpusData:
                     'topicTotalWordCount': self.topicTotalWordCount,
                     'docTopicalWordDist': self.docTopicalWordDist,
                     'docTotalWordCounts': self.docTotalWordCounts,
-                    'stopwords': self.stopwords}
+                    'stopwords': list(self.stopwords)}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
@@ -456,7 +459,7 @@ def txtToCsv(fileName, splitString):
         docLength = int(splitString[6:])
         docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
-        docStringsArray = fileString.split(splitString)
+        docStringsArray = fileString.split(splitString.lower())
     print("Number of documents: " + str(len(docStringsArray)))
     for i in range(len(docStringsArray)):
         #TODO: Handle all escape characters
@@ -543,10 +546,12 @@ def makeChunkString(chunkType, chunkParam):
 
 
 def main():
-    """ Uses config.json to be run straight from the shell with no other
-        arguments: "python3 LDA.py config.json". Calls virtually every other
+    """ Uses config.json to be run straight from the shell with no
+        arguments: "python3 LDA.py". Calls virtually every other
         function in the file. Topics are generated according to the settings
-        in config.json and relevant data is placed in [outputname].json.
+        in config.json and relevant data is placed in [outputname].json. 
+        Note: config.json must be in the same directory as LDA.py and must be
+        formatted properly.
 
     """
     configFile = "config.json"
@@ -557,7 +562,7 @@ def main():
     topics = config["required parameters"]["topics"]
     outputname = config["required parameters"]["output name"]
     upperlimit = config["stopword options"]["upper limit"]
-    lowerlimit = config["stopword options"]["upper limit"]
+    lowerlimit = config["stopword options"]["lower limit"]
     whitelist = config["stopword options"]["whitelist"]
     blacklist = config["stopword options"]["blacklist"]
     chunkingoptions = config["chunking options"]
@@ -576,7 +581,7 @@ def main():
         source = source[:-4] + ".csv"
 
     corpus = CorpusData(source, topics)
-    corpus.loadData(upperlimit, lowerlimit, whitelist, blacklist)
+    corpus.loadData(lowerlimit, upperlimit, whitelist, blacklist)
     runLDA(corpus, iterations, alpha, beta)
     corpus.createAnnoTextDataStructure()
     corpus.encodeData(source, topics, iterations, alpha, beta, outputname)
