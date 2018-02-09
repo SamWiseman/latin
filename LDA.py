@@ -534,7 +534,7 @@ def makeChunkString(chunkType, chunkParam):
     elif chunkType == 'length of documents':
         chunkString += 'length'
         chunkString += str(chunkParam)
-    elif chunkType == 'string':
+    elif chunkType == 'split string':
         chunkString = chunkParam
     else:
         print("Invalid chunkType given.\n")
@@ -549,7 +549,7 @@ def main():
         in config.json and relevant data is placed in [outputname].json.
 
     """
-    configFile = sys.argv[1]
+    configFile = "config.json"
     configString = open(configFile, 'r').read()
     config = json.loads(configString)
     source = config["required parameters"]["source"]
