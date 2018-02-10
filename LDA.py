@@ -169,10 +169,10 @@ class CorpusData:
             stopLowerBound = 0
         if stopUpperBound == "off":
             stopUpperBound = 2
-        
+
         lowerBound = math.ceil(len(self.wordLocationArray) * float(stopLowerBound))
         upperBound = math.ceil(len(self.wordLocationArray) * float(stopUpperBound))
-        
+
         # create an array of stopwords
         for word in wordDocCounts:
             if wordDocCounts[word] <= lowerBound or wordDocCounts[word] >= upperBound:
@@ -186,7 +186,7 @@ class CorpusData:
 
         # remove all stopwords from wordLocationArray and uniqueWordDict
         self.stopwords = set(self.stopwords)
-        
+
         for docWords in self.wordLocationArray:
             docWords[:] = [w for w in docWords if w not in self.stopwords]
         for w in self.stopwords:
@@ -262,9 +262,6 @@ class CorpusData:
             outputname (str): Name of the desired output JSON file (without file extension).
 
         """
-        for doc in self.topicAssignmentByLoc:
-            for location in range(len(doc)):
-                doc[location] = int(doc[location])
         for doc in self.topicAssignByLocStatic:
             for location in range(len(doc)):
                 doc[location] = int(doc[location])
@@ -276,16 +273,9 @@ class CorpusData:
                     'iterations': iterations,
                     'alpha': alpha,
                     'beta': beta,
-                    'wordLocationArray': self.wordLocationArray,
                     'wordsByLocationWithStopwords': self.wordLocArrayStatic,
-                    'topicAssignmentByLoc': self.topicAssignmentByLoc,
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
-                    'uniqueWordDict': self.uniqueWordDict,
-                    'wordDistributionAcrossTopics': self.wordDistributionAcrossTopics,
                     'topicWordInstancesDict': self.topicWordInstancesDict,
-                    'topicTotalWordCount': self.topicTotalWordCount,
-                    'docTopicalWordDist': self.docTopicalWordDist,
-                    'docTotalWordCounts': self.docTotalWordCounts,
                     'stopwords': list(self.stopwords)}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
@@ -549,7 +539,7 @@ def main():
     """ Uses config.json to be run straight from the shell with no
         arguments: "python3 LDA.py". Calls virtually every other
         function in the file. Topics are generated according to the settings
-        in config.json and relevant data is placed in [outputname].json. 
+        in config.json and relevant data is placed in [outputname].json.
         Note: config.json must be in the same directory as LDA.py and must be
         formatted properly.
 

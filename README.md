@@ -92,4 +92,3 @@ Latin: ["ab", "ac", "ad", "adhic", "aliqui", "aliquis", "an", "ante", "apud", "a
         "quae", "quam", "quare", "qui", "quia", "quicumque", "quidem", "quilibet", "quis", "quisnam", "quisquam",
         "quisque", "quisquis", "quo", "quoniam", "sed", "si", "sic", "sive", "sub", "sui", "sum", "super", "suus",
         "tam", "tamen", "trans", "tu", "tum", "ubi", "uel", "uero", "unus", "ut"]
-
