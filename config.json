@@ -1,9 +1,9 @@
 {
   "required parameters":{
-    "source": "gatsby.txt",
+    "source": "christmascarol2.txt",
     "iterations": 30,
     "topics": 20,
-    "output name": "gatsbytest"
+    "output name": "output"
   },
   "stopword options":{
     "upper limit": "off",
