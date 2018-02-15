@@ -1,19 +1,25 @@
 {
   "required parameters":{
-    "source": "gatsby.txt",
-    "iterations": 30,
-    "topics": 20,
-    "output name": "gatsbytest"
+    "source": "bedeText.csv",
+    "iterations": 5,
+    "topics": 10,
+    "output name": "bedeTest"
   },
   "stopword options":{
-    "upper limit": "off",
-    "lower limit": "off",
+    "upper limit": 0.9,
+    "lower limit": 0.05,
     "whitelist": ["vir", "ecclesia"],
-    "blacklist": ["et", "cum"]
+    "blacklist": ["ab", "ac", "ad", "adhic", "aliqui", "aliquis", "an", "ante", "apud", "at", "atque", "aut", "autem", "cum",
+        "cur", "de", "deinde", "dum", "ego", "enim", "ergo", "es", "est", "et", "etiam", "etsi", "ex", "fio", "haud",
+        "hic", "iam", "idem", "igitur", "ille", "in", "infra", "inter", "interim", "ipse", "is", "ita", "magis", "modo",
+        "mox", "nam", "ne", "nec", "necque", "neque", "nisi", "non", "nos", "o", "ob", "per", "possum", "post", "pro",
+        "quae", "quam", "quare", "qui", "quia", "quicumque", "quidem", "quilibet", "quis", "quisnam", "quisquam",
+        "quisque", "quisquis", "quo", "quoniam", "sed", "si", "sic", "sive", "sub", "sui", "sum", "super", "suus",
+        "tam", "tamen", "trans", "tu", "tum", "ubi", "uel", "uero", "unus", "ut"]
   },
   "chunking options":{
-    "number of documents": "off",
-    "length of documents": 500,
+    "number of documents": 30,
+    "length of documents": "off",
     "split string": "off"
   },
   "hyperparameters":{
