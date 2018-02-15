@@ -554,14 +554,17 @@ def makeChunkString(chunkType, chunkParam):
 
 def main():
     """ Uses config.json to be run straight from the shell with no
-        arguments: "python3 LDA.py". Calls virtually every other
+        arguments: "python3 LDA.py [name of config file].json". Calls virtually every other
         function in the file. Topics are generated according to the settings
         in config.json and relevant data is placed in [outputname].json.
-        Note: config.json must be in the same directory as LDA.py and must be
+        Note: The config file must be in the same directory as LDA.py and must be
         formatted properly.
 
     """
-    configFile = "config.json"
+    if len(sys.argv) < 2:
+        print("Usage: python3 LDA.py [config file name].json")
+        exit()
+    configFile = sys.argv[1]
     configString = open(configFile, 'r').read()
     config = json.loads(configString)
     source = config["required parameters"]["source"]
