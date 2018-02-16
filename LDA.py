@@ -281,8 +281,9 @@ class CorpusData:
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
                     'topicWordInstancesDict': self.topicWordInstancesDict,
                     'stopwords': list(self.stopwords),
-                    'punctuation': puncData[0],
-                    'puncLocations': puncData[1]}
+                    'puncAndCap': puncData[0],
+                    'puncCapLocations': puncData[1],
+                    'newlineLocations': puncData[2]}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
@@ -431,17 +432,45 @@ class CorpusData:
                     docTopicList.append(stopwordTopic)
             self.topicAssignByLocStatic.append(docTopicList)
 
-def grabPunctuation(fileName):
+def grabPuncAndCap(fileName):
     fileString = open(fileName, 'r').read().split()
-    punctuation = []
-    puncLocations = []
+    unsplitFile = open(fileName, 'r').read()
+    newlineLocations = []
+    count = 0
+    trackToken = ''
+    ##remove starting white space from file
+    removeStartWhitespace = False
+    while not removeStartWhitespace:
+        if unsplitFile[0] == ' ' or unsplitFile[0] == '\t' or unsplitFile[0] == '\n':
+                unsplitFile = unsplitFile[1:]
+        else:
+            removeStartWhitespace = True
+    ##get locations of new line characters
+    for i in range(len(unsplitFile)):
+        if unsplitFile[i] == "\n":
+            if trackToken != '':
+                newlineLocations.append(count)
+                trackToken = ''
+                count += 1
+            else:
+                newlineLocations.append(newlineLocations[len(newlineLocations)-1])
+        elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
+            if unsplitFile[i+1] != '\t' or unsplitFile[i+1] != ' ' or unsplitFile[i+1] != "\n":
+                trackToken = ''
+                count += 1
+        else:
+            trackToken += unsplitFile[i]
+
+    ##get punctuation and capitalization info
+    puncAndCap = []
+    puncCapLocations = []
     count = 0
     for token in fileString:
-        if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token:
-            punctuation.append(token)
-            puncLocations.append(count)
+        if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or any(ltr for ltr in token if ltr.isupper()):
+            puncAndCap.append(token)
+            puncCapLocations.append(count)
         count += 1
-    return punctuation, puncLocations
+    return puncAndCap, puncCapLocations, newlineLocations
 
 
 def txtToCsv(fileName, splitString):
@@ -587,7 +616,7 @@ def main():
     beta = config["hyperparameters"]["beta"]
     chunkString = makeChunkString(chunkType, chunkParam)
     if source[-3:] == 'txt':
-        puncData = grabPunctuation(source)
+        puncData = grabPuncAndCap(source)
         txtToCsv(source, chunkString)
         source = source[:-4] + ".csv"
 
