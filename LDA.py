@@ -284,6 +284,8 @@ class CorpusData:
                     'puncAndCap': puncData[0],
                     'puncCapLocations': puncData[1],
                     'newlineLocations': puncData[2]}
+                    # 'puncAndCap': puncData[0], <--potential restructure
+                    # 'newlineLocations': puncData[1]} <--potential restructure
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
@@ -425,14 +427,33 @@ class CorpusData:
                 if len(self.wordLocationArray[document]) > counter:
                     if self.wordLocArrayStatic[document][word] == self.wordLocationArray[document][counter]:
                         docTopicList.append(self.topicAssignmentByLoc[document][counter])
+                        # self.topicAssignByLocStatic.append(int(self.topicAssignmentByLoc[document][counter])) <--potential restructure
                         counter += 1
                     else:
                         docTopicList.append(stopwordTopic)
+                        #self.topicAssignByLocStatic(int(stopwordTopic)) <--potential restructure
                 else:
                     docTopicList.append(stopwordTopic)
             self.topicAssignByLocStatic.append(docTopicList)
 
 def grabPuncAndCap(fileName):
+    """Given .txt file, iterates through to create data structures containing all words
+            that are attached to punctuation or contain capitalization. Also stores the
+            location of the new line characters. Purpose: for loading in a user-friendly
+            version of the text in the UI Annotated Text section.
+
+        Args:
+            fileName (str): The input file given by the user, if the input file is a .txt
+
+        Returns:
+            puncAndCap ([str]): A list of words, in the order they appear and as they appear
+            in the .txt, that are attached to punctuation or contain capitalization
+            puncCapLocations ([str]): A list of indexes that corresponds with the words in
+            puncAndCap. The indexes indicate where in the full text each word in puncAndCap
+            belongs.
+            newlineLocations ([str]): A list of indexes. Each index indicates where a new line
+            character belongs in the Annotated Text.
+        """
     fileString = open(fileName, 'r').read().split()
     unsplitFile = open(fileName, 'r').read()
     newlineLocations = []
@@ -471,6 +492,7 @@ def grabPuncAndCap(fileName):
             puncCapLocations.append(count)
         count += 1
     return puncAndCap, puncCapLocations, newlineLocations
+    #return fileString, newlineLocations <--potential restructure
 
 
 def txtToCsv(fileName, splitString):
