@@ -645,6 +645,8 @@ def main():
         puncData = grabPuncAndCap(source)
         txtToCsv(source, chunkString)
         source = source[:-4] + ".csv"
+    else:
+        puncData = [[], [], []]
 
     corpus = CorpusData(source, topics)
     corpus.loadData(lowerlimit, upperlimit, whitelist, blacklist)
