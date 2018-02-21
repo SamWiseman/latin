@@ -519,6 +519,10 @@ def txtToCsv(fileName, splitString):
         docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
         docStringsArray = fileString.split(splitString.lower())
+        temp = []
+        for i in range(len(docStringsArray)):
+            temp.append(splitString + docStringsArray[i])
+        docStringsArray = temp
     print("Number of documents: " + str(len(docStringsArray)))
     for i in range(len(docStringsArray)):
         #TODO: Handle all escape characters

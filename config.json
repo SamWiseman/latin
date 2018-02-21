@@ -13,8 +13,8 @@
   },
   "chunking options":{
     "number of documents": "off",
-    "length of documents": 500,
-    "split string": "off"
+    "length of documents": "off",
+    "split string": "stave"
   },
   "hyperparameters":{
     "alpha": 0.8,
