@@ -476,7 +476,7 @@ def grabPuncAndCap(fileName):
             else:
                 newlineLocations.append(newlineLocations[len(newlineLocations)-1])
         elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
-            if unsplitFile[i+1] != '\t' or unsplitFile[i+1] != ' ' or unsplitFile[i+1] != "\n":
+            if unsplitFile[i+1] != '\t' and unsplitFile[i+1] != ' ' and unsplitFile[i+1] != "\n":
                 trackToken = ''
                 count += 1
         else:
