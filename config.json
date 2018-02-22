@@ -1,0 +1,23 @@
+{
+  "required parameters":{
+    "source": "christmascarol2.txt",
+    "iterations": 30,
+    "topics": 10,
+    "output name": "output"
+  },
+  "stopword options":{
+    "upper limit": "off",
+    "lower limit": "off",
+    "whitelist": ["vir", "ecclesia"],
+    "blacklist": ["et", "cum"]
+  },
+  "chunking options":{
+    "number of documents": "10",
+    "length of documents": "off",
+    "split string": "off"
+  },
+  "hyperparameters":{
+    "alpha": 0.8,
+    "beta": 0.8
+  }
+}

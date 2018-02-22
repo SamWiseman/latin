@@ -476,7 +476,7 @@ def grabPuncAndCap(fileName):
             else:
                 newlineLocations.append(newlineLocations[len(newlineLocations)-1])
         elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
-            if unsplitFile[i+1] != '\t' or unsplitFile[i+1] != ' ' or unsplitFile[i+1] != "\n":
+            if unsplitFile[i+1] != '\t' and unsplitFile[i+1] != ' ' and unsplitFile[i+1] != "\n":
                 trackToken = ''
                 count += 1
         else:
@@ -520,8 +520,10 @@ def txtToCsv(fileName, splitString):
     else: 
         docStringsArray = fileString.split(splitString.lower())
         temp = []
-        for i in range(len(docStringsArray)):
+        temp.append(docStringsArray[0])
+        for i in range(1, len(docStringsArray)):
             temp.append(splitString + docStringsArray[i])
+
         docStringsArray = temp
     print("Number of documents: " + str(len(docStringsArray)))
     for i in range(len(docStringsArray)):
