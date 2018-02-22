@@ -88,6 +88,10 @@ class CorpusData:
     docTopicalWordDist = []
     # a list of of the number of words in each document
     docTotalWordCounts = []
+    #a list of punctuation
+    punctuation = []
+    #the locations of the punctuation
+    puncLocations = []
 
     # consideration: the way the csv is organized could vary. should we standardize it as
     # pat of preprocessing? we are currently using the format given by wikiParse.py
@@ -248,7 +252,7 @@ class CorpusData:
             print("Topic " + str(self.topicWordInstancesDict.index(topic) + 1) + ": "),
             print(", ".join(sorted(topic, key=topic.get, reverse=True)))
 
-    def encodeData(self, readfile, topics, iterations, alpha, beta, outputname):
+    def encodeData(self, readfile, topics, iterations, alpha, beta, outputname, puncData):
         """Encodes information about the LDA output in a .json file. Stores the
             name of the input file, number of topics, number of iterations,
             hyperparameters, and data structures used to build the topics.
@@ -276,7 +280,10 @@ class CorpusData:
                     'wordsByLocationWithStopwords': self.wordLocArrayStatic,
                     'topicsByLocationWithStopwords': self.topicAssignByLocStatic,
                     'topicWordInstancesDict': self.topicWordInstancesDict,
-                    'stopwords': list(self.stopwords)}
+                    'stopwords': list(self.stopwords),
+                    'puncAndCap': puncData[0],
+                    'puncCapLocations': puncData[1],
+                    'newlineLocations': puncData[2]}
         outputfile = outputname+".json"
         with open(outputfile, 'w') as outfile:
             json.dump(dumpDict, outfile, indent=4)
@@ -425,6 +432,46 @@ class CorpusData:
                     docTopicList.append(stopwordTopic)
             self.topicAssignByLocStatic.append(docTopicList)
 
+def grabPuncAndCap(fileName):
+    fileString = open(fileName, 'r').read().split()
+    unsplitFile = open(fileName, 'r').read()
+    newlineLocations = []
+    count = 0
+    trackToken = ''
+    ##remove starting white space from file
+    removeStartWhitespace = False
+    while not removeStartWhitespace:
+        if unsplitFile[0] == ' ' or unsplitFile[0] == '\t' or unsplitFile[0] == '\n':
+                unsplitFile = unsplitFile[1:]
+        else:
+            removeStartWhitespace = True
+    ##get locations of new line characters
+    for i in range(len(unsplitFile)):
+        if unsplitFile[i] == "\n":
+            if trackToken != '':
+                newlineLocations.append(count)
+                trackToken = ''
+                count += 1
+            else:
+                newlineLocations.append(newlineLocations[len(newlineLocations)-1])
+        elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
+            if unsplitFile[i+1] != '\t' or unsplitFile[i+1] != ' ' or unsplitFile[i+1] != "\n":
+                trackToken = ''
+                count += 1
+        else:
+            trackToken += unsplitFile[i]
+
+    ##get punctuation and capitalization info
+    puncAndCap = []
+    puncCapLocations = []
+    count = 0
+    for token in fileString:
+        if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or any(ltr for ltr in token if ltr.isupper()):
+            puncAndCap.append(token)
+            puncCapLocations.append(count)
+        count += 1
+    return puncAndCap, puncCapLocations, newlineLocations
+
 
 def txtToCsv(fileName, splitString):
     """Given a .txt file containing the corpus, creates a .csv file that chunks the
@@ -534,17 +581,19 @@ def makeChunkString(chunkType, chunkParam):
         exit()
     return chunkString
 
-
 def main():
     """ Uses config.json to be run straight from the shell with no
-        arguments: "python3 LDA.py". Calls virtually every other
+        arguments: "python3 LDA.py [name of config file].json". Calls virtually every other
         function in the file. Topics are generated according to the settings
         in config.json and relevant data is placed in [outputname].json.
-        Note: config.json must be in the same directory as LDA.py and must be
+        Note: The config file must be in the same directory as LDA.py and must be
         formatted properly.
 
     """
-    configFile = "config.json"
+    if len(sys.argv) < 2:
+        print("Usage: python3 LDA.py [config file name].json")
+        exit()
+    configFile = sys.argv[1]
     configString = open(configFile, 'r').read()
     config = json.loads(configString)
     source = config["required parameters"]["source"]
@@ -567,6 +616,7 @@ def main():
     beta = config["hyperparameters"]["beta"]
     chunkString = makeChunkString(chunkType, chunkParam)
     if source[-3:] == 'txt':
+        puncData = grabPuncAndCap(source)
         txtToCsv(source, chunkString)
         source = source[:-4] + ".csv"
 
@@ -574,7 +624,7 @@ def main():
     corpus.loadData(lowerlimit, upperlimit, whitelist, blacklist)
     runLDA(corpus, iterations, alpha, beta)
     corpus.createAnnoTextDataStructure()
-    corpus.encodeData(source, topics, iterations, alpha, beta, outputname)
+    corpus.encodeData(source, topics, iterations, alpha, beta, outputname, puncData)
 
     # clean up words from topics that have value 0 (i.e. are not assigned to that topic)
     for topic in corpus.topicWordInstancesDict:

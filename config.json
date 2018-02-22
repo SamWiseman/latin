@@ -1,25 +1,26 @@
 {
   "required parameters":{
-    "source": "bedeText.csv",
-    "iterations": 5,
+    "source": "bedeCSV.csv",
+    "iterations": 100,
     "topics": 10,
-    "output name": "bedeTest"
+    "output name": "bedeText-100-10"
   },
   "stopword options":{
     "upper limit": 0.9,
     "lower limit": 0.05,
-    "whitelist": ["vir", "ecclesia"],
-    "blacklist": ["ab", "ac", "ad", "adhic", "aliqui", "aliquis", "an", "ante", "apud", "at", "atque", "aut", "autem", "cum",
-        "cur", "de", "deinde", "dum", "ego", "enim", "ergo", "es", "est", "et", "etiam", "etsi", "ex", "fio", "haud",
-        "hic", "iam", "idem", "igitur", "ille", "in", "infra", "inter", "interim", "ipse", "is", "ita", "magis", "modo",
-        "mox", "nam", "ne", "nec", "necque", "neque", "nisi", "non", "nos", "o", "ob", "per", "possum", "post", "pro",
-        "quae", "quam", "quare", "qui", "quia", "quicumque", "quidem", "quilibet", "quis", "quisnam", "quisquam",
-        "quisque", "quisquis", "quo", "quoniam", "sed", "si", "sic", "sive", "sub", "sui", "sum", "super", "suus",
-        "tam", "tamen", "trans", "tu", "tum", "ubi", "uel", "uero", "unus", "ut"]
+    "whitelist": [],
+    "blacklist":  ["ab", "ac/1", "ad/2", "adhic", "aliqvi", "aliqvis", "an", "ante/2", "apvd", "at/2", "atqve", "avt", 
+      "avtem", "cvm/2", "cvm/1", "cvm/3", "cvr/1", "de", "deinde", "dum/2", "ego", "enim/2", "ergo", "es", "est", "et",
+      "etiam", "etsi/2", "ex", "fio", "havd", "hic/1", "iam", "idem", "igitvr", "ille", "in", "infra/2", "inter",
+      "interim", "ipse", "is", "ita", "magis/2", "modo/1", "mox", "n/a", "nam", "ne/4", "nec", "necqve", "neqve", "nisi",
+      "non", "nos", "o", "ob", "per", "possvm/1", "post/2", "pro/1", "qvae", "qvam/1", "qvare/1", "qvi/1", "qvi/2",
+      "quia", "qvicvmqve/1", "qvidem", "qvilibet", "qvis/1", "qvisnam", "qvisquam", "qvisqve/2", "qvisqvis/2", "qvo",
+      "qvoniam", "sed", "si/2", "sic", "sive/1", "svb", "svi/1", "svm/1", "svper/2", "suus", "tam", "tamen", "trans/2",
+      "tv", "tvm", "vbi/1", "vel/1", "vero/2", "vero/3", "vnvs", "vt/4"]
   },
   "chunking options":{
-    "number of documents": 30,
-    "length of documents": "off",
+    "number of documents": "off",
+    "length of documents": 20,
     "split string": "off"
   },
   "hyperparameters":{
