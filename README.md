@@ -1,6 +1,11 @@
 # latin
 Topic Modeling of Latin Texts Your Health
 
+System Requirements
+ python3
+ numpy
+
+
 Config Instructions
 
 Required Parameters
