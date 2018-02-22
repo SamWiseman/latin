@@ -1,5 +1,14 @@
-'''This file implements LDA Topic Modeling'''
-'''Usage: python3 LDA.py'''
+"""
+Usage:      python3 LDA.py
+
+@authors    Estelle Bayer
+            Martha Durett
+            Brendan Friesen
+            Adam Klein
+            Bard Swallow
+            Sam Wiseman
+"""
+
 import csv
 import json
 import sys
@@ -264,6 +273,7 @@ class CorpusData:
             alpha (float): Alpha constant used in this run of LDA.
             beta (float): Beta constant used in this run of LDA.
             outputname (str): Name of the desired output JSON file (without file extension).
+            puncData ([[str]]): Catalogue of tokens in the file that include punctuation or capitalization
 
         """
         for doc in self.topicAssignByLocStatic:
@@ -519,8 +529,7 @@ def txtToCsv(fileName, splitString):
         docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
         docStringsArray = fileString.split(splitString.lower())
-        temp = []
-        temp.append(docStringsArray[0])
+        temp = [docStringsArray[0]]
         for i in range(1, len(docStringsArray)):
             temp.append(splitString + docStringsArray[i])
 
@@ -604,6 +613,8 @@ def makeChunkString(chunkType, chunkParam):
         chunkString += str(chunkParam)
     elif chunkType == 'split string':
         chunkString = chunkParam
+    elif chunkType == 'using csv':
+        pass
     else:
         print("Invalid chunkType given.\n")
         exit()
