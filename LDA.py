@@ -498,9 +498,17 @@ def grabPuncAndCap(fileName):
     count = 0
     for token in fileString:
         if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or any(ltr for ltr in token if ltr.isupper()):
+            allPunc = True
+            for char in token:
+                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';':
+                    allPunc = False
             puncAndCap.append(token)
-            puncCapLocations.append(count)
-        count += 1
+            if allPunc:
+                puncCapLocations.append(count - 1)
+            else:
+                puncCapLocations.append(count)
+        if not allPunc:
+            count += 1
     return puncAndCap, puncCapLocations, newlineLocations
     #return fileString, newlineLocations <--potential restructure
 
