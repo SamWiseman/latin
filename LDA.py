@@ -504,7 +504,7 @@ def grabPuncAndCap(fileName):
                     allPunc = False
             puncAndCap.append(token)
             if allPunc:
-                puncCapLocations.append(count - 1)
+                puncCapLocations.append(count - 0.5)
             else:
                 puncCapLocations.append(count)
         if not allPunc:
