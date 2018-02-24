@@ -473,7 +473,7 @@ def grabPuncAndCap(fileName):
     removeStartWhitespace = False
     while not removeStartWhitespace:
         if unsplitFile[0] == ' ' or unsplitFile[0] == '\t' or unsplitFile[0] == '\n':
-                unsplitFile = unsplitFile[1:]
+            unsplitFile = unsplitFile[1:]
         else:
             removeStartWhitespace = True
     ##get locations of new line characters
@@ -487,8 +487,9 @@ def grabPuncAndCap(fileName):
                 newlineLocations.append(newlineLocations[len(newlineLocations)-1])
         elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
             if unsplitFile[i+1] != '\t' and unsplitFile[i+1] != ' ' and unsplitFile[i+1] != "\n":
-                trackToken = ''
-                count += 1
+                if trackToken != '':
+                    trackToken = ''
+                    count += 1
         else:
             trackToken += unsplitFile[i]
 

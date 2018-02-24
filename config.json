@@ -1,7 +1,7 @@
 {
   "required parameters":{
-    "source": "muchado.txt",
-    "iterations": 42,
+    "source": "dracula.txt",
+    "iterations": 2,
     "topics": 6,
     "output name": "output"
   },
