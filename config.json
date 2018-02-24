@@ -1,15 +1,15 @@
 {
   "required parameters":{
-    "source": "christmascarol2.txt",
-    "iterations": 30,
-    "topics": 10,
+    "source": "dracula.txt",
+    "iterations": 2,
+    "topics": 6,
     "output name": "output"
   },
   "stopword options":{
     "upper limit": "off",
     "lower limit": "off",
-    "whitelist": ["vir", "ecclesia"],
-    "blacklist": ["et", "cum"]
+    "whitelist": ["nothing", "something"],
+    "blacklist": ["the", "and"]
   },
   "chunking options":{
     "number of documents": "10",

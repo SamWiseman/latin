@@ -1,5 +1,14 @@
-'''This file implements LDA Topic Modeling'''
-'''Usage: python3 LDA.py'''
+"""
+Usage:      python3 LDA.py
+
+@authors    Estelle Bayer
+            Martha Durett
+            Brendan Friesen
+            Adam Klein
+            Bard Swallow
+            Sam Wiseman
+"""
+
 import csv
 import json
 import sys
@@ -264,6 +273,7 @@ class CorpusData:
             alpha (float): Alpha constant used in this run of LDA.
             beta (float): Beta constant used in this run of LDA.
             outputname (str): Name of the desired output JSON file (without file extension).
+            puncData ([[str]]): Catalogue of tokens in the file that include punctuation or capitalization
 
         """
         for doc in self.topicAssignByLocStatic:
@@ -463,7 +473,7 @@ def grabPuncAndCap(fileName):
     removeStartWhitespace = False
     while not removeStartWhitespace:
         if unsplitFile[0] == ' ' or unsplitFile[0] == '\t' or unsplitFile[0] == '\n':
-                unsplitFile = unsplitFile[1:]
+            unsplitFile = unsplitFile[1:]
         else:
             removeStartWhitespace = True
     ##get locations of new line characters
@@ -477,8 +487,9 @@ def grabPuncAndCap(fileName):
                 newlineLocations.append(newlineLocations[len(newlineLocations)-1])
         elif unsplitFile[i] == '\t' or unsplitFile[i] == ' ':
             if unsplitFile[i+1] != '\t' and unsplitFile[i+1] != ' ' and unsplitFile[i+1] != "\n":
-                trackToken = ''
-                count += 1
+                if trackToken != '':
+                    trackToken = ''
+                    count += 1
         else:
             trackToken += unsplitFile[i]
 
@@ -488,9 +499,17 @@ def grabPuncAndCap(fileName):
     count = 0
     for token in fileString:
         if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or any(ltr for ltr in token if ltr.isupper()):
+            allPunc = True
+            for char in token:
+                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';':
+                    allPunc = False
             puncAndCap.append(token)
-            puncCapLocations.append(count)
-        count += 1
+            if allPunc:
+                puncCapLocations.append(count - 0.5)
+            else:
+                puncCapLocations.append(count)
+        if not allPunc:
+            count += 1
     return puncAndCap, puncCapLocations, newlineLocations
     #return fileString, newlineLocations <--potential restructure
 
@@ -519,8 +538,7 @@ def txtToCsv(fileName, splitString):
         docStringsArray = getDocsOfLength(docLength, wordList, False)
     else: 
         docStringsArray = fileString.split(splitString.lower())
-        temp = []
-        temp.append(docStringsArray[0])
+        temp = [docStringsArray[0]]
         for i in range(1, len(docStringsArray)):
             temp.append(splitString + docStringsArray[i])
 
@@ -604,6 +622,8 @@ def makeChunkString(chunkType, chunkParam):
         chunkString += str(chunkParam)
     elif chunkType == 'split string':
         chunkString = chunkParam
+    elif chunkType == 'using csv':
+        pass
     else:
         print("Invalid chunkType given.\n")
         exit()

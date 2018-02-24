@@ -1,6 +1,9 @@
 # latin
 Topic Modeling of Latin Texts Your Health
 
+##System Requirements
+Requires prior installation of python3 and numpy. 
+
 ##Config Instructions
 
 ###Required Parameters
