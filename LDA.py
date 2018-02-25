@@ -499,10 +499,10 @@ def grabPuncAndCap(fileName):
     count = 0
     for token in fileString:
         allPunc = False
-        if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or '“' in token or '”' in token or '‘' in token or '’' in token or any(ltr for ltr in token if ltr.isupper()):
+        if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or '“' in token or '”' in token or '‘' in token or '’' in token or "'" in token or any(ltr for ltr in token if ltr.isupper()):
             allPunc = True
             for char in token:
-                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';' and char != '“' and char != '”' and char != '‘' and char != '’':
+                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';' and char != '“' and char != '”' and char != '‘' and char != '’' and char != "'":
                     allPunc = False
             puncAndCap.append(token)
             if allPunc:
@@ -555,7 +555,7 @@ def txtToCsv(fileName, splitString):
         for docString in docStringsArray:
             wordsArray = docString.split(' ')
             for word in wordsArray:
-                word = word.strip('.,!?"“”‘’():;\n\t')
+                word = word.strip('.,!?"“”‘’():;\n\t\'')
                 if word != '':
                     filewriter.writerow([word,str(currentDoc)])
             currentDoc += 1

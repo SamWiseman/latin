@@ -1,6 +1,6 @@
 {
   "required parameters":{
-    "source": "pbs.txt",
+    "source": "dracula.txt",
     "iterations": 2,
     "topics": 6,
     "output name": "output"
