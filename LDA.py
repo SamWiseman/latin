@@ -502,7 +502,7 @@ def grabPuncAndCap(fileName):
         if '.' in token or ',' in token or '!' in token or '?' in token or '"' in token or '(' in token or ')' in token or ':' in token or ';' in token or '“' in token or '”' in token or any(ltr for ltr in token if ltr.isupper()):
             allPunc = True
             for char in token:
-                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';':
+                if char != "." and char != "," and char != "!" and char != "?" and char != '"' and char != "(" and char != ")" and char != ":" and char != ';' and char != '“' and char != '”':
                     allPunc = False
             puncAndCap.append(token)
             if allPunc:
