@@ -16,7 +16,6 @@ from collections import OrderedDict, Counter
 from numpy.random import choice
 import time
 import math
-import evaluation
 from operator import itemgetter
 import copy
 
@@ -302,7 +301,7 @@ class CorpusData:
 
     def removeWordFromDataStructures(self, word, doc, oldTopic):
         """Removes an instance of a word from a topic and updates the
-            approrpriate data structures accordingly.
+            appropriate data structures accordingly.
 
         Args:
             word (int): The index of the given word in its home document.
@@ -325,15 +324,12 @@ class CorpusData:
             doc (int): The index of the given document in wordLocationArray.
             newTopic (int): The index of the topic to which the word in
                 question is being added.
-
         """
         wordString = self.wordLocationArray[doc][word]
         self.topicAssignmentByLoc[doc][word] = newTopic
         self.topicWordInstancesDict[newTopic][wordString] += 1
         self.topicTotalWordCount[newTopic] += 1
         self.docTopicalWordDist[doc][newTopic] += 1
-
-    ''' LDA methods for recalculating the probabilities of each word by topic '''
 
     def calculateProbabilities(self, docCoord, wordCoord, alpha, beta):
         """Given an instance of a word and two smoothing constants, returns
@@ -463,6 +459,7 @@ def grabPuncAndCap(fileName):
             belongs.
             newlineLocations ([str]): A list of indexes. Each index indicates where a new line
             character belongs in the Annotated Text.
+
         """
     fileString = open(fileName, 'r').read().split()
     unsplitFile = open(fileName, 'r').read()
@@ -546,7 +543,6 @@ def txtToCsv(fileName, splitString):
         docStringsArray = temp
     print("Number of documents: " + str(len(docStringsArray)))
     for i in range(len(docStringsArray)):
-        #TODO: Handle all escape characters
         docStringsArray[i] = docStringsArray[i].replace("\n", " ")
     csvfilename = fileName[:-4]+".csv"
     with open(csvfilename, 'w', newline='') as csvfile:
@@ -684,9 +680,6 @@ def main():
                 del topic[key]
     corpus.printTopics()
     corpus.outputAsCSV(outputname)
-    # evaluation.compareDistributions(corpus)
-    # evaluation.compareTopicSize(corpus)
-    # evaluation.topicSpecificity(corpus)
 
 if __name__ == "__main__":
     main()
