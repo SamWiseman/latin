@@ -54,10 +54,12 @@ def runLDA(corpus, iterations, alpha, beta):
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
-        #printing the elapsed time (real-time)
+        estTimeRemaining = math.ceil((time.clock() - startTime) * (iterations - i) / 60)
         sleep(0.1)
-        printProgressBar(i + 1, iterations, prefix = 'Progress', suffix = 'Complete', length = 50)
-        #print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() - startTime))
+        if (estTimeRemaining > 0):
+            printProgressBar(i + 1, iterations, prefix='Progress', suffix='Complete', length=50, estTimeRemaining=estTimeRemaining)
+        else:
+            printProgressBar(i + 1, iterations, prefix='Progress', suffix='Complete', length=50)
 
 
 # class that stores words from a text and organizes them in various ways to facilitate LDA
@@ -628,8 +630,8 @@ def makeChunkString(chunkType, chunkParam):
         exit()
     return chunkString
 
-# Print iterations progress by user Greenstick on stackoverflow
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+# progressbar by user Greenstick on stackoverflow modified to include estimated time remaining
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', estTimeRemaining = 0):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -640,11 +642,15 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         decimals    - Optional  : positive number of decimals in percent complete (Int)
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
+        estTimeRemaining - Optional : custom parameter added to original version of function
     """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    sys.stdout.write('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))
+    if (estTimeRemaining > 0):
+        sys.stdout.write('\r%s |%s| %s%% %s %s %s %s' % (prefix, bar, percent, suffix, 'Estimated time remaining: ', estTimeRemaining, 'minutes'))
+    else:
+        sys.stdout.write('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))
     # Print New Line on Complete
     if iteration == total:
         sys.stdout.write('\n')
