@@ -12,6 +12,7 @@ Usage:      python3 LDA.py
 import csv
 import json
 import sys
+from time import sleep
 from collections import OrderedDict, Counter
 from numpy.random import choice
 import time
@@ -41,7 +42,7 @@ def runLDA(corpus, iterations, alpha, beta):
             variety of words.
 
     """
-
+    printProgressBar(0, iterations, prefix='Progress', suffix='Complete', length=50)
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -54,8 +55,9 @@ def runLDA(corpus, iterations, alpha, beta):
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
         #printing the elapsed time (real-time)
-        print("Time elapsed for iteration " + str(i) + ": " \
-         + str(time.clock() - startTime))
+        sleep(0.1)
+        printProgressBar(i + 1, iterations, prefix = 'Progress', suffix = 'Complete', length = 50)
+        #print("Time elapsed for iteration " + str(i) + ": " + str(time.clock() - startTime))
 
 
 # class that stores words from a text and organizes them in various ways to facilitate LDA
@@ -626,6 +628,27 @@ def makeChunkString(chunkType, chunkParam):
         exit()
     return chunkString
 
+# Print iterations progress by user Greenstick on stackoverflow
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    sys.stdout.write('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))
+    # Print New Line on Complete
+    if iteration == total:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
 def main():
     """ Uses config.json to be run straight from the shell with no
         arguments: "python3 LDA.py [name of config file].json". Calls virtually every other
