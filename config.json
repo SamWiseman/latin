@@ -3,7 +3,7 @@
     "source": "BedeCSV.csv",
     "iterations": 100,
     "topics": 10,
-    "output name": "bedeText-100-10-Bard-stopwords"
+    "output name": "bedeText-100iterations-10topics"
   },
   "stopword options":{
     "upper limit": "off",
