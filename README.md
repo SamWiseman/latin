@@ -25,7 +25,7 @@ Requires prior installation of python3 and numpy.
 
  **Blacklist**: either a list of words to blacklist OR “off” if you do not wish to use this feature
 
-**Default stopwords**: Check these boxes to blacklist common stopwords in English and/or Latin as designated by the Perseus Digital Library. This is recommended for optimal output. 
+**Default stopwords**: This option is included in the config file creation form. Check these boxes to blacklist common stopwords in English and/or Latin as designated by the Perseus Digital Library. This is recommended for optimal output.
 
 ### Chunking Options
 Note: only one of these methods may be used at one time; if a config file refers to more than one,
@@ -39,8 +39,10 @@ only the first will be used.
 
  **Split String**: a string representing the sequence of characters that separates documents from one another OR “off” if you are using a different chunking method
 
+ **Using CSV**: "on" if you are using a CSV and don't need to chunk your document OR "off" if you are using a different chunking method
+
 ### Hyperparameters
- **Alpha**: a decimal value between 0 and 1 representing how similar topics should be to each other in topic makeup
+ **Alpha**: a decimal value between 0 and 1 representing how similar documents should be to each other in topic makeup
 
  **Beta**: a decimal value between 0 and 1 representing how similar topics should be to each other in word makeup
 
@@ -50,6 +52,8 @@ Requires that python3 be installed. Folder must contain the .txt or .csv input f
     python3 LDA.py config.json
 
 ## Output
-**.csv**: If a .txt file is designated as the source text, a .csv file will be created that matches each word to a document based on the user's chunking preferences. If the user runs the algorithm again and doesn't wish to change their chunking option, they can save time by designating this .csv as the source instead of their original .txt file.
+**filename.csv**: If a .txt file is designated as the source text, a .csv file will be created that matches each word to a document based on the user's chunking preferences. If the user runs the algorithm again and doesn't wish to change their chunking option, they can save time by designating this .csv as the source instead of their original .txt file.
 
+**outputname.csv**: A file containing the model legible without the use of the visualization tool. In this CSV, each topic has three columns: Word, Count (number of times the
+            word appears in that topic) and Percentage (percentage of that topic that is the given word).
 **.json**: Contains the information that the app's electron-bede companion uses to display visualizations of the algorithm's output.

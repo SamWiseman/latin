@@ -1,20 +1,30 @@
 {
   "required parameters":{
-    "source": "dracula.txt",
-    "iterations": 2,
-    "topics": 6,
-    "output name": "output"
+    "source": "BedeCSV.csv",
+    "iterations": 100,
+    "topics": 10,
+    "output name": "bedeText-100-10-Bard-stopwords"
   },
   "stopword options":{
     "upper limit": "off",
     "lower limit": "off",
-    "whitelist": ["nothing", "something"],
-    "blacklist": ["the", "and"]
+    "whitelist": [],
+    "blacklist": ["svvs", "qvin/1", "vnde/1", "qvasi/1", "qvamvis/1", "vsqve", "cvmqve", "vllvs", "mvltvs",
+      "qvoqve", "qvia", "qvidam", "tvvs", "alivs", "ab", "ac/1", "ad/2", "adhic", "aliqvi", "aliqvis", "an", "ante/2",
+      "apvd", "at/2", "atqve", "avt", "avtem", "cvm/2", "cvm/1", "cvm/3", "cvr/1", "de", "deinde", "dum/2", "ego",
+      "enim/2", "ergo", "es", "est", "et", "etiam", "etsi/2", "ex", "fio", "havd", "hic/1", "iam", "idem", "igitvr",
+      "ille", "in", "infra/2", "inter", "interim", "ipse", "is", "ita", "magis/2", "modo/1", "mox", "nam", "ne/4",
+      "nec", "necqve", "neqve", "nisi", "non", "nos", "o", "ob", "per", "possvm/1", "post/2", "pro/1", "qvae",
+      "qvam/1", "qvare/1", "qvi/1", "qvi/2","quia", "qvicvmqve/1", "qvidem", "qvilibet", "qvis/1", "qvisnam",
+      "qvisquam", "qvisqve/2", "qvisqvis/2", "qvo", "qvoniam", "sed", "si/2", "sic", "sive/1", "svb", "svi/1",
+      "svm/1", "svper/2", "suus", "tam", "tamen", "trans/2", "tv", "tvm", "vbi/1", "vel/1", "vero/2", "vero/3",
+      "vnvs", "vt/4", "#n/a", "et/2"]
   },
   "chunking options":{
-    "number of documents": "10",
+    "number of documents": "off",
     "length of documents": "off",
-    "split string": "off"
+    "split string": "off",
+    "using csv": "on"
   },
   "hyperparameters":{
     "alpha": 0.8,

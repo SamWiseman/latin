@@ -12,7 +12,6 @@ Usage:      python3 LDA.py
 import csv
 import json
 import sys
-from time import sleep
 from collections import OrderedDict, Counter
 from numpy.random import choice
 import time
@@ -42,7 +41,7 @@ def runLDA(corpus, iterations, alpha, beta):
             variety of words.
 
     """
-    printProgressBar(0, iterations, prefix='Progress', suffix='Complete', length=50)
+    printProgressBar(0, iterations, prefix='Progress', suffix='complete', length=50)
     for i in range(0, iterations):
         # getting start time to measure runtime
         # delete the line below for the final release!
@@ -54,12 +53,14 @@ def runLDA(corpus, iterations, alpha, beta):
                 wordProbabilities = corpus.calculateProbabilities(doc, word, alpha, beta)
                 newTopic = choice(range(len(wordProbabilities)), p=wordProbabilities)
                 corpus.addWordToDataStructures(word, doc, newTopic)
-        estTimeRemaining = math.ceil((time.clock() - startTime) * (iterations - i) / 60)
-        sleep(0.1)
-        if (estTimeRemaining > 0):
-            printProgressBar(i + 1, iterations, prefix='Progress', suffix='Complete', length=50, estTimeRemaining=estTimeRemaining)
+        estTime = math.ceil((time.clock() - startTime) * (iterations - i) / 60)
+        time.sleep(0.1)
+        if i == iterations-1:
+            printProgressBar(i + 1, iterations, prefix='Progress', suffix='complete', length=50)
+        elif (estTime > 0):
+            printProgressBar(i + 1, iterations, prefix='Progress', suffix='complete', length=50, estTimeRemaining=estTime)
         else:
-            printProgressBar(i + 1, iterations, prefix='Progress', suffix='Complete', length=50)
+            printProgressBar(i + 1, iterations, prefix='Progress', suffix='complete', length=50)
 
 
 # class that stores words from a text and organizes them in various ways to facilitate LDA
@@ -358,10 +359,10 @@ class CorpusData:
             # pwt = P(w|t)
             topicDict = self.topicWordInstancesDict[i]
             wordCount = topicDict[word]
-            pwt = (wordCount + alpha) / (self.topicTotalWordCount[i] + alpha)
+            pwt = (wordCount + beta) / (self.topicTotalWordCount[i] + beta)
             # ptd = P(t|d)
             wordsInTopicInDoc = self.docTopicalWordDist[docCoord][i]
-            ptd = (wordsInTopicInDoc + beta) / (self.docTotalWordCounts[docCoord] + beta)
+            ptd = (wordsInTopicInDoc + alpha) / (self.docTotalWordCounts[docCoord] + alpha)
             # ptw = P(t|w)
             ptw = pwt * ptd
             newWordProbs.append(ptw)
@@ -631,7 +632,7 @@ def makeChunkString(chunkType, chunkParam):
     return chunkString
 
 # progressbar by user Greenstick on stackoverflow modified to include estimated time remaining
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', estTimeRemaining = 0):
+def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', estTimeRemaining=0):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -643,12 +644,15 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
         estTimeRemaining - Optional : custom parameter added to original version of function
+        :param timeremaining:
     """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    if (estTimeRemaining > 0):
-        sys.stdout.write('\r%s |%s| %s%% %s %s %s %s' % (prefix, bar, percent, suffix, 'Estimated time remaining: ', estTimeRemaining, 'minutes'))
+    if estTimeRemaining == 1:
+        sys.stdout.write('\r%s |%s| %s%% %s %s %s' % (prefix, bar, percent, (suffix + '; Estimated time remaining: '), estTimeRemaining, 'minute'))
+    elif estTimeRemaining > 0:
+        sys.stdout.write('\r%s |%s| %s%% %s %s %s' % (prefix, bar, percent, (suffix + '; Estimated time remaining: '), estTimeRemaining, 'minutes'))
     else:
         sys.stdout.write('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))
     # Print New Line on Complete
@@ -707,7 +711,6 @@ def main():
         for key in list(topic.keys()):
             if topic[key] == 0:
                 del topic[key]
-    corpus.printTopics()
     corpus.outputAsCSV(outputname)
 
 if __name__ == "__main__":
